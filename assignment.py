@@ -1,6 +1,7 @@
 import os
 import re
 from time import sleep
+import json
 
 class User:
     userName = None
@@ -11,9 +12,11 @@ class SystemAdministrator(User):
     # SystemAdministrator can only be made by SuperAdministrators
     pass
 
+
 class Advisor(User):
     # Advisors can only be made by SystemAdministrators
     pass
+
 
 class Encryptor:
     #use Caesar sipher
@@ -24,32 +27,63 @@ class Encryptor:
         #should decrypt message from the txt file
         pass
 
+
 class client:
 
 
     #▪ City (system should generate a list of 10 city names of your choice predefined in the system)
     pass
 
+
 class dataBase:
-    clients = {}
-    systemAdministrators = {}
-    advisors = {}
-    hosts = {}
+    error = False
+    data = None
+    message = ''
 
     def load(self):
-        #loads everything from the txt file into the attributes
-        pass
-    def save(self):
-        # saves new data into the attributes
-        pass
+        with open('data.json') as f:
+            self.data = json.load(f)
+
     def terminate(self):
-        # saves everything back to the txt file when the application terminates
-        pass
+        with open('data.json', 'w') as f:
+            json.dump(self.data, f,indent=2)
+    
+    def getAdvisor(self, username):
+        try:
+            return self.data['advisors'][username]
+        except KeyError:
+            self.message = 'User does not exist'
+            self.error = True
+
+    def registerAdvisor(self, object):
+        try:
+            self.getAdvisor(object.username)
+            self.message = 'Username already exists'
+            self.error = True
+        except KeyError:
+            self.data["advisors"][object.username] = object.__dict__
+    
+    def getSystemAdministrator(self, username):
+        try:
+            return self.data["systemadministrators"][username]
+        except KeyError:
+            self.message = 'User does not exist'
+            self.error = True
+    
+    def registerSystemAdministrator(self, object):
+        try:
+            self.getSystemAdministrator(object.username)
+            self.message = 'Username already exists'
+            self.error = True
+        except KeyError:
+            self.data["systemadministrators"][object.username] = object.__dict__
+
 
 class Authentication:
     grantAccess = False
     def authenticate(self, username, password):
          pass
+
 
 class InputHandler:
     emailStatus = False
@@ -131,7 +165,6 @@ class InputHandler:
         else:
             self.streetStatus = True
     
-
     def checkHouseNumber(self,houseNumber):
         #to do: Handel \'
         regex_house_number_pattern = '\d{1,5}[A-Z]{1,2}'
