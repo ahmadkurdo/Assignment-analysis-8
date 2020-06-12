@@ -4,7 +4,6 @@ from time import sleep
 
 class User:
     userName = None
-
     password = None
 
 
@@ -54,6 +53,7 @@ class Authentication:
     grantAccess = False
     def authenticate(self, username, password):
          pass
+
 class InputHandler:
     emailStatus = False
     passwordStatus = False
@@ -83,14 +83,18 @@ class InputHandler:
             one lowercase letter, one uppercase letter, one digit, and one special character and has between 8 to 30 characters'''
   
     def checkUsername(self,username):
-        pass
+        regex_restricted_characters = '[~!@#$%^&*+=|/?(){}:<>,;`\[\]]'
+        if(re.search(regex_restricted_characters,username) or len(username)<5 or len(username)>20 ):
+            self.usernameStatus = False
+            self.message = '''Invalid username. The username may only contain 
+            letters (a-z), numbers (0-9), dashes (-), underscores (_), apostrophes ('), and periods (.) 
+            and has to be between 5 to 20 characters'''
+        else:
+            self.usernameStatus = True
+            
     def checkAddress(self,address):
         pass
 
-    #must have a length of at least 8 characters
-    #must be no longer than 30 characters
-    #can contain letters (a-z), (A-Z), numbers (0-9), Special characters such as ~!@#$%^&*_-+=`|\(){}[]:;'<>,.?/.
-    #must have a combination of at least one lowercase letter, one uppercase letter, one digit, and one special character
     
 
 
