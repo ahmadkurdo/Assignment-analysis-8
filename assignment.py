@@ -27,9 +27,7 @@ class Encryptor:
 class client:
     #Full Name − Address:
     #▪ Street and House number
-    #▪ Zip Code (DDDDXX)
     #▪ City (system should generate a list of 10 city names of your choice predefined in the system)
-    #− Email Address
     #− Mobile Phone (+31-6-DDDD-DDDD)
     pass
 
@@ -60,6 +58,7 @@ class InputHandler:
     usernameStatus = False
     addressStatus = False
     zipCodeStatus = False
+    phoneNumberStatus = False
     message = ''
     def checkEmail(self,email):
         email = str(email)
@@ -101,6 +100,15 @@ class InputHandler:
         else:
             self.message = "Invalid zipcode. The zipcode must contain 4 digits and 2 letters"
             self.zipCodeStatus = False
+    
+    def checkPhoneNumber(self,phoneNumber):
+        regex_phone_number_pattern = '[+]31[-]6[-]\d{4}[-]\d{4}'
+        if(re.search(regex_phone_number_pattern,phoneNumber)):
+            self.phoneNumberStatus = True
+        else:
+            self.message = "Invalid phone number. The phone number must have the following format: (+31-6-DDDD-DDDD)"
+            self.zipCodeStatus = False
+
 
 
     
