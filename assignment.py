@@ -25,12 +25,9 @@ class Encryptor:
         pass
 
 class client:
-    #Full Name − Address:
-    #▪ Street and House number
-    #▪ Zip Code (DDDDXX)
+
+
     #▪ City (system should generate a list of 10 city names of your choice predefined in the system)
-    #− Email Address
-    #− Mobile Phone (+31-6-DDDD-DDDD)
     pass
 
 class dataBase:
@@ -59,7 +56,12 @@ class InputHandler:
     passwordStatus = False
     usernameStatus = False
     addressStatus = False
+    zipCodeStatus = False
+    phoneNumberStatus = False
+    fullNameStatus = False
+    streetStatus = False
     message = ''
+    
     def checkEmail(self,email):
         email = str(email)
         regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
@@ -83,6 +85,8 @@ class InputHandler:
             one lowercase letter, one uppercase letter, one digit, and one special character and has between 8 to 30 characters'''
   
     def checkUsername(self,username):
+        #to do: change uppercase to lowercase
+        #to do: Handel \
         regex_restricted_characters = '[~!@#$%^&*+=|/?(){}:<>,;`\[\]]'
         if(re.search(regex_restricted_characters,username) or len(username)<5 or len(username)>20 ):
             self.usernameStatus = False
@@ -92,8 +96,58 @@ class InputHandler:
         else:
             self.usernameStatus = True
             
-    def checkAddress(self,address):
-        pass
+    def checkZipCode(self,zipcode):
+        #to do: change lowercase to uppercase
+        regex_zipcode_pattern = '\d{4}[A-Z]{2}'
+        if(re.search(regex_zipcode_pattern,zipcode)):
+            self.zipCodeStatus = True
+        else:
+            self.message = "Invalid zipcode. The zipcode must contain 4 digits and 2 letters"
+            self.zipCodeStatus = False
+    
+    def checkPhoneNumber(self,phoneNumber):
+        regex_phone_number_pattern = '[+]31[-]6[-]\d{4}[-]\d{4}'
+        if(re.search(regex_phone_number_pattern,phoneNumber)):
+            self.phoneNumberStatus = True
+        else:
+            self.message = "Invalid phone number. The phone number must have the following format: (+31-6-DDDD-DDDD)"
+            self.zipCodeStatus = False
+    
+    def checkFullName(self,fullName):
+        #to do: Handel \
+        regex_restricted_characters = '[~!@#$%^&*+=|/?(){}:<>,;`\[\]\d]'
+        if(re.search(regex_restricted_characters,fullName)):
+            self.fullNameStatus = False
+            self.message = '''Invalid name. Please make sure that your name does not contain special characters or digit.'''
+        else:
+            self.fullNameStatus = True
+    
+    def checkStreet(self,street):
+        #to do: Handel \
+        regex_restricted_characters = '[~!@#$%^&*+=|/?(){}:<>,;`\[\]]'
+        if(re.search(regex_restricted_characters,street)):
+            self.streetStatus = False
+            self.message = '''Invalid street. Please make sure that your name does not contain special characters.'''
+        else:
+            self.streetStatus = True
+    
+
+    def checkHouseNumber(self,houseNumber):
+        #to do: Handel \'
+        regex_house_number_pattern = '\d{1,5}[A-Z]{1,2}'
+        regex_restricted_characters = '[~!@#$%^&*_+=.|/?(){}:<>,;`\[\]]'
+        if(re.search(regex_house_number_pattern,houseNumber) and not re.search(regex_restricted_characters,houseNumber) and len(houseNumber)<= 4):
+            self.houseNumberStatus = True
+        else:
+            self.message = '''Invalid house number. Please make sure thst it contains at least 1 number'''
+            self.houseNumberStatus= False
+            
+
+
+            
+
+
+
 
     
 
