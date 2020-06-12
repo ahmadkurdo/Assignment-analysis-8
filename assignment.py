@@ -25,7 +25,7 @@ class Encryptor:
         pass
 
 class client:
-    #Full Name − Address:
+
     #▪ Street and House number
     #▪ City (system should generate a list of 10 city names of your choice predefined in the system)
     pass
@@ -58,7 +58,10 @@ class InputHandler:
     addressStatus = False
     zipCodeStatus = False
     phoneNumberStatus = False
+    fullNameStatus = False
+    streetStatus = False
     message = ''
+    
     def checkEmail(self,email):
         email = str(email)
         regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
@@ -94,6 +97,7 @@ class InputHandler:
             self.usernameStatus = True
             
     def checkZipCode(self,zipcode):
+        #to do: change lowercase to uppercase
         regex_zipcode_pattern = '\d{4}[A-Z]{2}'
         if(re.search(regex_zipcode_pattern,zipcode)):
             self.zipCodeStatus = True
@@ -108,6 +112,28 @@ class InputHandler:
         else:
             self.message = "Invalid phone number. The phone number must have the following format: (+31-6-DDDD-DDDD)"
             self.zipCodeStatus = False
+    
+    def checkFullName(self,fullName):
+        #to do: Handel \
+        regex_restricted_characters = '[~!@#$%^&*+=|/?(){}:<>,;`\[\]\d]'
+        if(re.search(regex_restricted_characters,fullName)):
+            self.fullNameStatus = False
+            self.message = '''Invalid name. Please make sure that your name does not contain special characters or digit.'''
+        else:
+            self.fullNameStatus = True
+    
+    def checkStreet(self,street):
+        #to do: Handel \
+        regex_restricted_characters = '[~!@#$%^&*+=|/?(){}:<>,;`\[\]]'
+        if(re.search(regex_restricted_characters,street)):
+            self.streetStatus = False
+            self.message = '''Invalid street. Please make sure that your name does not contain special characters.'''
+        else:
+            self.streetStatus = True
+
+
+            
+
 
 
 
