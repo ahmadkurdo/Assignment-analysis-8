@@ -1,0 +1,43 @@
+{
+  "systemadministrators": {
+    "hassan": {
+      "username": "hassan", 
+      "__module__": "__main__", 
+      "password": "password123", 
+      "role": 1, 
+      "__doc__": null
+    }, 
+    "ahmed": {
+      "username": "ahmed", 
+      "__module__": "__main__", 
+      "password": "rashid", 
+      "__doc__": null
+    }, 
+    "hassan1": {
+      "username": "hassan1", 
+      "__module__": "__main__", 
+      "password": "password123", 
+      "role": 1, 
+      "__doc__": null
+    }, 
+    "motje": {
+      "username": "motje", 
+      "__module__": "__main__", 
+      "password": "password123", 
+      "__doc__": null
+    }, 
+    "razan123": {
+      "password": "test123"
+    }
+  }, 
+  "advisors": {
+    "rezhwan123": {
+      "password": "test123"
+    }
+  }, 
+  "clients": {
+    "ahmed": {
+      "password": "test123"
+    }
+  }
+}
