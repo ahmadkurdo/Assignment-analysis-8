@@ -29,8 +29,6 @@ class Encryptor:
 
 
 class client:
-
-
     #▪ City (system should generate a list of 10 city names of your choice predefined in the system)
     pass
 
@@ -174,24 +172,3 @@ class InputHandler:
         else:
             self.message = '''Invalid house number. Please make sure thst it contains at least 1 number'''
             self.houseNumberStatus= False
-            
-
-
-            
-
-
-
-
-    
-
-
-
-
-    
-    
-
-
-
-
-    
-
