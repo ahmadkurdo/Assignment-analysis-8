@@ -26,7 +26,7 @@ class Encryptor:
 
 class client:
 
-    #▪ Street and House number
+
     #▪ City (system should generate a list of 10 city names of your choice predefined in the system)
     pass
 
@@ -130,6 +130,18 @@ class InputHandler:
             self.message = '''Invalid street. Please make sure that your name does not contain special characters.'''
         else:
             self.streetStatus = True
+    
+
+    def checkHouseNumber(self,houseNumber):
+        #to do: Handel \'
+        regex_house_number_pattern = '\d{1,5}[A-Z]{1,2}'
+        regex_restricted_characters = '[~!@#$%^&*_+=.|/?(){}:<>,;`\[\]]'
+        if(re.search(regex_house_number_pattern,houseNumber) and not re.search(regex_restricted_characters,houseNumber) and len(houseNumber)<= 4):
+            self.houseNumberStatus = True
+        else:
+            self.message = '''Invalid house number. Please make sure thst it contains at least 1 number'''
+            self.houseNumberStatus= False
+            
 
 
             
