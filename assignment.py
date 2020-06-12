@@ -4,7 +4,6 @@ from time import sleep
 
 class User:
     userName = None
-
     password = None
 
 
@@ -54,6 +53,7 @@ class Authentication:
     grantAccess = False
     def authenticate(self, username, password):
          pass
+
 class InputHandler:
     emailStatus = False
     passwordStatus = False
