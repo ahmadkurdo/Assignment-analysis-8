@@ -28,7 +28,6 @@ class client:
     #Full Name − Address:
     #▪ Street and House number
     #▪ City (system should generate a list of 10 city names of your choice predefined in the system)
-    #− Mobile Phone (+31-6-DDDD-DDDD)
     pass
 
 class dataBase:
@@ -84,6 +83,7 @@ class InputHandler:
   
     def checkUsername(self,username):
         #to do: change uppercase to lowercase
+        #to do: Handel \
         regex_restricted_characters = '[~!@#$%^&*+=|/?(){}:<>,;`\[\]]'
         if(re.search(regex_restricted_characters,username) or len(username)<5 or len(username)>20 ):
             self.usernameStatus = False
