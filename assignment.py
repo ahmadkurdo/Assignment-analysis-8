@@ -95,10 +95,6 @@ class InputHandler:
     def checkAddress(self,address):
         pass
 
-    #must have a length of at least 8 characters
-    #must be no longer than 30 characters
-    #can contain letters (a-z), (A-Z), numbers (0-9), Special characters such as ~!@#$%^&*_-+=`|\(){}[]:;'<>,.?/.
-    #must have a combination of at least one lowercase letter, one uppercase letter, one digit, and one special character
     
 
 
