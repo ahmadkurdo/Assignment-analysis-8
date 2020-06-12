@@ -59,6 +59,7 @@ class InputHandler:
     passwordStatus = False
     usernameStatus = False
     addressStatus = False
+    zipCodeStatus = False
     message = ''
     def checkEmail(self,email):
         email = str(email)
@@ -83,6 +84,7 @@ class InputHandler:
             one lowercase letter, one uppercase letter, one digit, and one special character and has between 8 to 30 characters'''
   
     def checkUsername(self,username):
+        #to do: change uppercase to lowercase
         regex_restricted_characters = '[~!@#$%^&*+=|/?(){}:<>,;`\[\]]'
         if(re.search(regex_restricted_characters,username) or len(username)<5 or len(username)>20 ):
             self.usernameStatus = False
@@ -92,8 +94,14 @@ class InputHandler:
         else:
             self.usernameStatus = True
             
-    def checkAddress(self,address):
-        pass
+    def checkZipCode(self,zipcode):
+        regex_zipcode_pattern = '\d{4}[A-Z]{2}'
+        if(re.search(regex_zipcode_pattern,zipcode)):
+            self.zipCodeStatus = True
+        else:
+            self.message = "Invalid zipcode. The zipcode must contain 4 digits and 2 letters"
+            self.zipCodeStatus = False
+
 
     
 
