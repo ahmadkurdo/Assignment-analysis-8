@@ -1,47 +1,45 @@
 {
-  "systemadministrators": {
-    "hassan": {
-      "username": "hassan", 
-      "__module__": "__main__", 
-      "password": "password123", 
-      "role": 1, 
-      "__doc__": null
-    }, 
-    "ahmed": {
-      "username": "ahmed", 
-      "__module__": "__main__", 
-      "password": "rashid", 
-      "__doc__": null
-    }, 
-    "hassan1": {
-      "username": "hassan1", 
-      "__module__": "__main__", 
-      "password": "password123", 
-      "role": 1, 
-      "__doc__": null
-    }, 
-    "motje": {
-      "username": "motje", 
-      "__module__": "__main__", 
-      "password": "password123", 
-      "__doc__": null
-    }, 
-    "razan123": {
-      "password": "test123"
+  "hqnjsyx": {
+    "frns1": {
+      "zxjwsfrj": "frns1", 
+      "wtqj": 4, 
+      "ufxxBtwi": "yjxy4321"
     }
   }, 
-  "advisors": {
-    "amin2": {
-      "username": "amin2", 
-      "password": "test4321"
-    }, 
-    "rezhwan123": {
-      "password": "test123"
+  "fiAnxtwx": {
+    "frns2": {
+      "zxjwsfrj": "frns2", 
+      "wtqj": 3, 
+      "ufxxBtwi": "yjxy4321"
     }
   }, 
-  "clients": {
-    "ahmed": {
-      "password": "test123"
+  "xzujwrfirnsnxywfytwx": {
+    "xzujw": {
+      "zxjwsfrj": "xzujw", 
+      "wtqj": 1, 
+      "ufxxBtwi": "xzujw"
+    }
+  }, 
+  "xDxyjrfirnsnxywfytwx": {
+    "fmrji": {
+      "zxjwsfrj": "fmrji", 
+      "wtqj": 2, 
+      "ufxxBtwi": "wfxmni"
+    }, 
+    "mfxxfs": {
+      "zxjwsfrj": "mfxxfs", 
+      "wtqj": 2, 
+      "ufxxBtwi": "ufxxBtwi123"
+    }, 
+    "mfxxfs1": {
+      "zxjwsfrj": "mfxxfs1", 
+      "wtqj": 2, 
+      "ufxxBtwi": "ufxxBtwi123"
+    }, 
+    "rtyoj": {
+      "zxjwsfrj": "rtyoj", 
+      "wtqj": 2, 
+      "ufxxBtwi": "ufxxBtwi123"
     }
   }
 }

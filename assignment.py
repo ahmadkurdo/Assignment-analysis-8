@@ -40,7 +40,6 @@ class Advisor(User):
         self.role = 3
 
 class Client:
-    #▪ City (system should generate a list of 10 city names of your choice predefined in the system)
     
     fullName = None
     zipCode = None
