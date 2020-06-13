@@ -106,17 +106,16 @@ class dataBase:
 
     def terminate(self):
         data = eval(json.dumps(self.data))
-        
         with open('data.json', 'w') as f:
             encrypted = self.encryptor.encrypt(str(data))
-            #data = eval(json.dumps(encrypted))
-            res = ast.literal_eval(encrypted) 
-            json.dump(res,f,indent=2)
+            encrypted_dict = ast.literal_eval(encrypted) 
+            json.dump(encrypted_dict, f,indent=2)
             f.close()
+
     def exists(self,object):
-        if (self.getAdvisor(object.username) or self.getSystemAdministrator(object.username) 
-            or self.getSuperAdministrator(object.username)):
+        if (self.getAdvisor(object.username) or self.getSystemAdministrator(object.username) or self.getSuperAdministrator(object.username)):
             return True
+    
     def getAdvisor(self, username):
         try:
             return self.data['advisors'][username]
@@ -125,9 +124,10 @@ class dataBase:
             self.error = True
 
     def registerAdvisor(self, object):
-        if self.getAdvisor(object.username):
+        if self.exists(object):
             self.message = 'Username already exists'
             self.error = True
+            print("Username is already taken")
         else:
             self.data["advisors"][object.username] = object.__dict__
     
@@ -147,7 +147,7 @@ class dataBase:
     
     def getSuperAdministrator(self, username):
         try:
-            return self.data["superadministrators"][username]
+            return self.data["supermadministrators"][username]
         except KeyError:
             self.message = 'User does not exist'
             self.error = True
@@ -261,4 +261,5 @@ class InputHandler:
             self.message = '''Invalid house number. Please make sure thst it contains at least 1 number'''
             self.houseNumberStatus= False
     
+
 
