@@ -60,19 +60,56 @@ class Client:
         self.city = city
         self.role = 4
 
+class Encryptor:
+    key = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+
+    def encrypt(self, plaintext):
+        """Encrypt the string and return the ciphertext"""
+        result = ''
+
+        for l in plaintext:
+            try:
+                i = (self.key.index(l) + 5) % 52
+                result += self.key[i]
+            except ValueError:
+                result += l
+
+        return result
+
+    def decrypt(self,ciphertext):
+        """Decrypt the string and return the plaintext"""
+        result = ''
+        for l in ciphertext:
+            try:
+                i = (self.key.index(l) - 5) % 52
+                result += self.key[i]
+            except ValueError:
+                result += l
+
+        return result
+
 class dataBase:
     error = False
     data = None
     message = ''
+    encryptor = Encryptor()
 
     def load(self):
-        with open('data.json') as f:
-            self.data = json.load(f)
+        data = ''
+        with open('data.json','r') as f:
+            for line in f:
+                for letter in line:
+                    data += letter
+            f.close()
+        decrypted = self.encryptor.decrypt(data)
+        self.data = json.loads(decrypted)
 
     def terminate(self):
         with open('data.json', 'w') as f:
-            json.dump(self.data, f,indent=2)
+            encrypted = self.encryptor.encrypt(self.data)
+            json.dump(encrypted, f,indent=2)
             f.close()
+
     
     def getAdvisor(self, username):
         try:
