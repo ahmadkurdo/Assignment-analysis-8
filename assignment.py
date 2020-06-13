@@ -139,7 +139,7 @@ class dataBase:
             self.error = True
     
     def registerSystemAdministrator(self, object):
-        if self.getSystemAdministrator(object.username):
+        if self.exists(object):
             self.message = 'Username already exists'
             self.error = True
         else:
