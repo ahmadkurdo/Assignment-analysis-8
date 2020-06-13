@@ -7,21 +7,22 @@ class User:
     password = None
 
 class superAdministrator(User):
-    role = 1
+    
     def __init__(self,username,password):
         self.username = username
         self.password = password
+        self.role = 1
     
     def createSystemAdministrator(self,username,password):
         systemAdministrator = SystemAdministrator(username,password)
         return systemAdministrator
 
 class SystemAdministrator(User):
-    role = 2
     
     def __init__(self,username,password):
         self.username = username
         self.password = password
+        self.role = 2
     
     def createAdvisor(self,username,password):
         advisor = Advisor(username,password)
@@ -32,14 +33,15 @@ class SystemAdministrator(User):
         return client
    
 class Advisor(User):
-    role = 3
+     
     def __init__(self,username,password):
         self.username = username
         self.password = password
+        self.role = 3
 
 class Client:
-    role = 4
     #▪ City (system should generate a list of 10 city names of your choice predefined in the system)
+    
     fullName = None
     zipCode = None
     street = None
@@ -56,6 +58,7 @@ class Client:
         self.email = email
         self.phoneNumber = phoneNumber
         self.city = city
+        self.role = 4
 
 class dataBase:
     error = False
@@ -69,6 +72,7 @@ class dataBase:
     def terminate(self):
         with open('data.json', 'w') as f:
             json.dump(self.data, f,indent=2)
+            f.close()
     
     def getAdvisor(self, username):
         try:
@@ -78,11 +82,10 @@ class dataBase:
             self.error = True
 
     def registerAdvisor(self, object):
-        try:
-            self.getAdvisor(object.username)
+        if self.getAdvisor(object.username):
             self.message = 'Username already exists'
             self.error = True
-        except KeyError:
+        else:
             self.data["advisors"][object.username] = object.__dict__
     
     def getSystemAdministrator(self, username):
@@ -93,11 +96,10 @@ class dataBase:
             self.error = True
     
     def registerSystemAdministrator(self, object):
-        try:
-            self.getSystemAdministrator(object.username)
+        if self.getSystemAdministrator(object.username):
             self.message = 'Username already exists'
             self.error = True
-        except KeyError:
+        else:
             self.data["systemadministrators"][object.username] = object.__dict__
     
     def getSuperAdministrator(self, username):
@@ -108,17 +110,20 @@ class dataBase:
             self.error = True
     
     def registerClient(self, object):
-        try:
-            self.getAdvisor(object.email)
+        if self.getClient(object.email):
             self.message = 'User with this email already exists'
             self.error = True
-        except KeyError:
+        else:
             self.data["advisors"][object.username] = object.__dict__
+    
+    def getClient(self, email):
+        try:
+            return self.data["clients"][email]
+        except KeyError:
+            self.message = 'Email does not exist'
+            self.error = True
 
-db = dataBase()
-db.load()
-advisor = Advisor('amin', 'test4321')
-db.registerAdvisor(advisor)
+
     
 class Authentication:
     grantAccess = False
