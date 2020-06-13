@@ -7,15 +7,34 @@ class User:
     userName = None
     password = None
 
+class superAdministrator(User):
+    def __init__(self,username,password):
+        self.username = username
+        self.password = password
+    
+    def createSystemAdministrator(self,username,password):
+        systemAdministrator = SystemAdministrator(username,password)
+        return systemAdministrator
 
 class SystemAdministrator(User):
+
     # SystemAdministrator can only be made by SuperAdministrators
-    pass
-
-
+    def __init__(self,username,password):
+        self.username = username
+        self.password = password
+    
+    def createAdvisor(self,username,password):
+        advisor = Advisor(username,password)
+        return advisor
+    
+    def createClients(self,fullName,zipcode,street,houseNumber,email,phoneNumber,city):
+        client = Client(fullName,zipcode,street,houseNumber,email,phoneNumber,city)
+        return client
+   
 class Advisor(User):
-    # Advisors can only be made by SystemAdministrators
-    pass
+    def __init__(self,username,password):
+        self.username = username
+        self.password = password
 
 
 class Encryptor:
@@ -27,11 +46,24 @@ class Encryptor:
         #should decrypt message from the txt file
         pass
 
-
-class client:
+class Client:
     #▪ City (system should generate a list of 10 city names of your choice predefined in the system)
-    pass
-
+    fullName = None
+    zipCode = None
+    street = None
+    houseNumber = None
+    email = None
+    phoneNumber = None
+    city = None
+    
+    def __init__(self,fullName,zipCode,street,houseNumber,email,phoneNumber,city):
+        self.fullName = fullName
+        self.zipCode = zipCode
+        self.street = street
+        self.houseNumber = houseNumber
+        self.email = email
+        self.phoneNumber = phoneNumber
+        self.city = city
 
 class dataBase:
     error = False
@@ -76,12 +108,10 @@ class dataBase:
         except KeyError:
             self.data["systemadministrators"][object.username] = object.__dict__
 
-
 class Authentication:
     grantAccess = False
     def authenticate(self, username, password):
          pass
-
 
 class InputHandler:
     emailStatus = False
