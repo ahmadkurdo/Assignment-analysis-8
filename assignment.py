@@ -92,15 +92,24 @@ class dataBase:
     error = False
     data = None
     message = ''
+    encryptor = Encryptor()
 
     def load(self):
-        with open('data.json') as f:
-            self.data = json.load(f)
+        data = ''
+        with open('data.json','r') as f:
+            for line in f:
+                for letter in line:
+                    data += letter
+            f.close()
+        decrypted = self.encryptor.decrypt(data)
+        self.data = json.loads(decrypted)
 
     def terminate(self):
         with open('data.json', 'w') as f:
-            json.dump(self.data, f,indent=2)
+            encrypted = self.encryptor.encrypt(self.data)
+            json.dump(encrypted, f,indent=2)
             f.close()
+
     
     def getAdvisor(self, username):
         try:
