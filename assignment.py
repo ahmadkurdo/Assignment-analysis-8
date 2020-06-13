@@ -62,7 +62,6 @@ class Client:
 
 class Encryptor:
     key = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
-
     def encrypt(self, plaintext):
         """Encrypt the string and return the ciphertext"""
         result = ''
@@ -172,23 +171,17 @@ class Authentication:
         pass
 
 class InputHandler:
-    emailStatus = False
-    passwordStatus = False
-    usernameStatus = False
-    addressStatus = False
-    zipCodeStatus = False
-    phoneNumberStatus = False
-    fullNameStatus = False
-    streetStatus = False
+    error = None
     message = ''
     
     def checkEmail(self,email):
         email = str(email)
         regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
         if(re.search(regex,email)):
-            self.emailStatus = True  
+            self.error = False  
         else:
             self.message = "You entered an invalid email address. Please try again"
+            self.error = True
  
     def checkPassword(self,password):
          #to do: Handel \'
@@ -199,67 +192,70 @@ class InputHandler:
         
         if(re.search(regex_digits,password) and re.search(regex_special,password) and re.search(regex_lower,password) 
         and re.search(regex_upper,password) and (len(password)>=8 and len(password)<=30)):
-            self.passwordStatus = True
+            self.error = False
         else:
             self.message = '''Invalid password. Please make sure your password contains a combination of at least 
             one lowercase letter, one uppercase letter, one digit, and one special character and has between 8 to 30 characters'''
+            self.error = True
   
     def checkUsername(self,username):
         #to do: change uppercase to lowercase
         #to do: Handel \
         regex_restricted_characters = '[~!@#$%^&*+=|/?(){}:<>,;`\[\]]'
         if(re.search(regex_restricted_characters,username) or len(username)<5 or len(username)>20 ):
-            self.usernameStatus = False
+            self.error = False
             self.message = '''Invalid username. The username may only contain 
             letters (a-z), numbers (0-9), dashes (-), underscores (_), apostrophes ('), and periods (.) 
             and has to be between 5 to 20 characters'''
         else:
-            self.usernameStatus = True
+            self.error = True
             
     def checkZipCode(self,zipcode):
         #to do: change lowercase to uppercase
         regex_zipcode_pattern = '\d{4}[A-Z]{2}'
         if(re.search(regex_zipcode_pattern,zipcode)):
-            self.zipCodeStatus = True
+            self.error = False
         else:
             self.message = "Invalid zipcode. The zipcode must contain 4 digits and 2 letters"
-            self.zipCodeStatus = False
+            self.error = True
     
     def checkPhoneNumber(self,phoneNumber):
         regex_phone_number_pattern = '[+]31[-]6[-]\d{4}[-]\d{4}'
         if(re.search(regex_phone_number_pattern,phoneNumber)):
-            self.phoneNumberStatus = True
+            self.error = False
         else:
             self.message = "Invalid phone number. The phone number must have the following format: (+31-6-DDDD-DDDD)"
-            self.zipCodeStatus = False
+            self.error = True
     
     def checkFullName(self,fullName):
         #to do: Handel \
         regex_restricted_characters = '[~!@#$%^&*+=|/?(){}:<>,;`\[\]\d]'
         if(re.search(regex_restricted_characters,fullName)):
-            self.fullNameStatus = False
+            self.error = False
             self.message = '''Invalid name. Please make sure that your name does not contain special characters or digit.'''
         else:
-            self.fullNameStatus = True
+            self.error = True
     
     def checkStreet(self,street):
         #to do: Handel \
         regex_restricted_characters = '[~!@#$%^&*+=|/?(){}:<>,;`\[\]]'
         if(re.search(regex_restricted_characters,street)):
-            self.streetStatus = False
+            self.error = False
             self.message = '''Invalid street. Please make sure that your name does not contain special characters.'''
         else:
-            self.streetStatus = True
+            self.error = True
     
     def checkHouseNumber(self,houseNumber):
         #to do: Handel \'
         regex_house_number_pattern = '\d{1,5}[A-Z]{1,2}'
         regex_restricted_characters = '[~!@#$%^&*_+=.|/?(){}:<>,;`\[\]]'
         if(re.search(regex_house_number_pattern,houseNumber) and not re.search(regex_restricted_characters,houseNumber) and len(houseNumber)<= 4):
-            self.houseNumberStatus = True
+            self.error = False
         else:
-            self.message = '''Invalid house number. Please make sure thst it contains at least 1 number'''
-            self.houseNumberStatus= False
+            self.message = '''Invalid house number. Please make sure that it contains at least 1 number'''
+            self.error = True
+class display:
+     pass
     
 
 
