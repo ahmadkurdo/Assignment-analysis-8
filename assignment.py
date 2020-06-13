@@ -73,7 +73,6 @@ class Encryptor:
                 result += self.key[i]
             except ValueError:
                 result += l
-
         return result
 
     def decrypt(self,ciphertext):
@@ -110,7 +109,6 @@ class dataBase:
             json.dump(encrypted, f,indent=2)
             f.close()
 
-    
     def getAdvisor(self, username):
         try:
             return self.data['advisors'][username]
@@ -160,8 +158,6 @@ class dataBase:
             self.message = 'Email does not exist'
             self.error = True
 
-
-    
 class Authentication:
     grantAccess = False
     def authenticate(self, username, password):
