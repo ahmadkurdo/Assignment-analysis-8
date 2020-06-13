@@ -60,6 +60,34 @@ class Client:
         self.city = city
         self.role = 4
 
+class Encryptor:
+    key = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+
+    def encrypt(self, plaintext):
+        """Encrypt the string and return the ciphertext"""
+        result = ''
+
+        for l in plaintext:
+            try:
+                i = (self.key.index(l) + 5) % 52
+                result += self.key[i]
+            except ValueError:
+                result += l
+
+        return result
+
+    def decrypt(self,ciphertext):
+        """Decrypt the string and return the plaintext"""
+        result = ''
+        for l in ciphertext:
+            try:
+                i = (self.key.index(l) - 5) % 52
+                result += self.key[i]
+            except ValueError:
+                result += l
+
+        return result
+
 class dataBase:
     error = False
     data = None
