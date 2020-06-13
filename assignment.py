@@ -1,6 +1,7 @@
 import re
 from time import sleep
 import json
+import ast
 
 class User:
     userName = None
@@ -86,6 +87,7 @@ class Encryptor:
 
         return result
 
+    
 class dataBase:
     error = False
     data = None
@@ -103,11 +105,18 @@ class dataBase:
         self.data = json.loads(decrypted)
 
     def terminate(self):
+        data = eval(json.dumps(self.data))
+        
         with open('data.json', 'w') as f:
-            encrypted = self.encryptor.encrypt(self.data)
-            json.dump(encrypted, f,indent=2)
+            encrypted = self.encryptor.encrypt(str(data))
+            #data = eval(json.dumps(encrypted))
+            res = ast.literal_eval(encrypted) 
+            json.dump(res,f,indent=2)
             f.close()
-
+    def exists(self,object):
+        if (self.getAdvisor(object.username) or self.getSystemAdministrator(object.username) 
+            or self.getSuperAdministrator(object.username)):
+            return True
     def getAdvisor(self, username):
         try:
             return self.data['advisors'][username]
@@ -251,4 +260,5 @@ class InputHandler:
         else:
             self.message = '''Invalid house number. Please make sure thst it contains at least 1 number'''
             self.houseNumberStatus= False
+    
 
