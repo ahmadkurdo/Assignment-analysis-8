@@ -31,6 +31,10 @@
     }
   }, 
   "advisors": {
+    "amin2": {
+      "username": "amin2", 
+      "password": "test4321"
+    }, 
     "rezhwan123": {
       "password": "test123"
     }

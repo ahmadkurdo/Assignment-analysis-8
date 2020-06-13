@@ -1,4 +1,3 @@
-import os
 import re
 from time import sleep
 import json
@@ -7,31 +6,59 @@ class User:
     userName = None
     password = None
 
+class superAdministrator(User):
+    
+    def __init__(self,username,password):
+        self.username = username
+        self.password = password
+        self.role = 1
+    
+    def createSystemAdministrator(self,username,password):
+        systemAdministrator = SystemAdministrator(username,password)
+        return systemAdministrator
 
 class SystemAdministrator(User):
-    # SystemAdministrator can only be made by SuperAdministrators
-    pass
-
-
+    
+    def __init__(self,username,password):
+        self.username = username
+        self.password = password
+        self.role = 2
+    
+    def createAdvisor(self,username,password):
+        advisor = Advisor(username,password)
+        return advisor
+    
+    def createClients(self,fullName,zipcode,street,houseNumber,email,phoneNumber,city):
+        client = Client(fullName,zipcode,street,houseNumber,email,phoneNumber,city)
+        return client
+   
 class Advisor(User):
-    # Advisors can only be made by SystemAdministrators
-    pass
+     
+    def __init__(self,username,password):
+        self.username = username
+        self.password = password
+        self.role = 3
 
-
-class Encryptor:
-    #use Caesar sipher
-    def encrypt(self,message):
-         #should encrypt the message the txt file
-         pass
-    def decrypt(self,message):
-        #should decrypt message from the txt file
-        pass
-
-
-class client:
+class Client:
     #▪ City (system should generate a list of 10 city names of your choice predefined in the system)
-    pass
-
+    
+    fullName = None
+    zipCode = None
+    street = None
+    houseNumber = None
+    email = None
+    phoneNumber = None
+    city = None
+    
+    def __init__(self,fullName,zipCode,street,houseNumber,email,phoneNumber,city):
+        self.fullName = fullName
+        self.zipCode = zipCode
+        self.street = street
+        self.houseNumber = houseNumber
+        self.email = email
+        self.phoneNumber = phoneNumber
+        self.city = city
+        self.role = 4
 
 class dataBase:
     error = False
@@ -45,6 +72,7 @@ class dataBase:
     def terminate(self):
         with open('data.json', 'w') as f:
             json.dump(self.data, f,indent=2)
+            f.close()
     
     def getAdvisor(self, username):
         try:
@@ -54,11 +82,10 @@ class dataBase:
             self.error = True
 
     def registerAdvisor(self, object):
-        try:
-            self.getAdvisor(object.username)
+        if self.getAdvisor(object.username):
             self.message = 'Username already exists'
             self.error = True
-        except KeyError:
+        else:
             self.data["advisors"][object.username] = object.__dict__
     
     def getSystemAdministrator(self, username):
@@ -69,19 +96,39 @@ class dataBase:
             self.error = True
     
     def registerSystemAdministrator(self, object):
-        try:
-            self.getSystemAdministrator(object.username)
+        if self.getSystemAdministrator(object.username):
             self.message = 'Username already exists'
             self.error = True
-        except KeyError:
+        else:
             self.data["systemadministrators"][object.username] = object.__dict__
+    
+    def getSuperAdministrator(self, username):
+        try:
+            return self.data["superadministrators"][username]
+        except KeyError:
+            self.message = 'User does not exist'
+            self.error = True
+    
+    def registerClient(self, object):
+        if self.getClient(object.email):
+            self.message = 'User with this email already exists'
+            self.error = True
+        else:
+            self.data["advisors"][object.username] = object.__dict__
+    
+    def getClient(self, email):
+        try:
+            return self.data["clients"][email]
+        except KeyError:
+            self.message = 'Email does not exist'
+            self.error = True
 
 
+    
 class Authentication:
     grantAccess = False
     def authenticate(self, username, password):
-         pass
-
+        pass
 
 class InputHandler:
     emailStatus = False
@@ -172,3 +219,4 @@ class InputHandler:
         else:
             self.message = '''Invalid house number. Please make sure thst it contains at least 1 number'''
             self.houseNumberStatus= False
+
