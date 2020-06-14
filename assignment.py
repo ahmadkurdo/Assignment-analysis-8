@@ -260,7 +260,13 @@ class App:
     quitScreen = False
     loginScreen = False
     retrieveSystemAdminscreen = False
-    displayAllSystemAdminsScreen = False
+    allSystemAdminsScreen = False
+    allClientsScreen = False
+    allAdvisorsScreen = False
+    superAdminScreen = False
+    systemAdminScreen = False
+    registerAvisorScreen = False
+    registerClientScreen = False
     userCredentials = {}
     registeredUserObject = None
     inputHandler = InputHandler()
@@ -284,6 +290,7 @@ class App:
         print("\t**********************************************")
         print("\t***  {}  ***".format(str(title)))
         print("\t**********************************************")
+        print('\n')
         
     def dislpayStartScreen(self):
         while True:
@@ -337,7 +344,7 @@ class App:
                 self.registerSystemAdminscreen = True
                 break
             elif str(choice) == '2':
-                self.displayAllSystemAdminsScreen = True
+                self.allSystemAdminsScreen = True
                 break
             elif str(choice) == 'q':
                 self.quitScreen = True
@@ -386,6 +393,35 @@ class App:
             print('Name: ' + str(systemAdmin['username']) + '\n')
             print('Role: ' + 'System administrator')
             x.fastPrint("--------------------------")
+    
+    def displaySystemAdminScreen(self, systemAdminObject):
+        while True:
+            self.displayTitleBar("System administrator - {}".format(str(systemAdminObject.username)))
+            print("\n[1] Register a advisor.")
+            print("[2] Register a client.")
+            print("[3] Display all clients.")
+            print("[4] Display all advisors.")
+            print("[q] Quit.")
+            
+            choice = input("What would you like to do? ")
+            if str(choice) == '1':
+                self.registerAvisorScreen = True
+                break
+            elif str(choice) == '2':
+                self.registerClientScreen = True
+                break
+            elif str(choice) == '3':
+                self.allClientsScreen = True
+                break
+            elif str(choice) == '4':
+                self.allAdvisorsScreen = True
+                break
+            elif str(choice) == 'q':
+                self.quitScreen = True
+                break
+            else:
+                self.slowprint("\nI didn't understand that choice. Please try again\n")
+                os.system('clear')
 
     def resetScreen(self):
         self.quitScreen = False
