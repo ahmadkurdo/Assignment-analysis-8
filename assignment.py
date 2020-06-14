@@ -176,8 +176,9 @@ class dataBase:
                 self.error = False
                 self.message = 'Access granted'
                 return logedInsuperAdmin
+            
         
-        elif self.getSystemAdministrator(username):
+        if self.getSystemAdministrator(username):
             systemAdmin = self.getSystemAdministrator(username)
             if systemAdmin['password'] == password:
                 logedInsystemAdmin = SystemAdministrator(username,password)
@@ -186,7 +187,7 @@ class dataBase:
                 self.message = 'Access granted'
                 return logedInsystemAdmin
 
-        elif self.getAdvisor(username):
+        if self.getAdvisor(username):
             advisor = self.getAdvisor(username)
             if advisor['password'] == password:
                 logedInAdvisor = Advisor(username,password)
@@ -194,10 +195,10 @@ class dataBase:
                 self.error = False
                 self.message = 'Access granted'
                 return logedInAdvisor
-        else:
-            self.grantAccess = False
-            self.error = True
-            self.message = 'Authorization failed. Wrong username or password'
+        
+        self.grantAccess = False
+        self.error = True
+        self.message = 'Authorization failed. Wrong username or password'
 
 class Formatter:
     def capitalize(self,text):
@@ -562,8 +563,6 @@ class App:
             if isinstance(userObject,Advisor):
                 self.advisorScreen = True
    
-
-
     def resetScreen(self):
         quitScreen = False
         loginScreen = False
@@ -589,28 +588,32 @@ if __name__ == "__main__":
     app.dislpayStartScreen()
     
     while True:
-
         if app.loginScreen:
+
             app.displayLoginScreen()
             logedInObject = db.login(app.userCredentials['username'],app.userCredentials['password'])
             if db.error:
-                print('im in db error')
                 app.displayInformationScreen('WARNING', db.message)
             if db.grantAccess:
                 app.decideScreen(logedInObject)
-                print('im in grant access')
+                app.loginScreen = False
                 
-
-        if app.superAdminScreen:
+        elif app.superAdminScreen:
             app.displaySuperAdminScreen(logedInObject)
+            app.superAdminScreen = False
         
         elif app.allSystemAdminsScreen:
             systemAdmins = db.getAll('systemadministrators')
             app.displayAllUsersByType(systemAdmins,'All system administrators','system administrator')
+            app.allSystemAdminsScreen = False
+            app.superAdminScreen = True
         
         elif app.registerSystemAdminscreen:
-            # pass the logged in object to the function below
-            app.displayRegisterationScreen('System administrator registration','system administrator')
+            app.displayRegisterationScreen(logedInObject,'System administrator registration','system administrator')
+            createdObject = app.registeredUserObject
+            db.registerSystemAdministrator(createdObject)
+            app.registerSystemAdminscreen = False
+            app.superAdminScreen = True
         
         elif app.systemAdminScreen:
             app.displaySystemAdminScreen()
@@ -630,7 +633,7 @@ if __name__ == "__main__":
         elif app.registerAvisorScreen:
             # pass the logged in object to the function below
             app.displayRegisterationScreen('Advisor registration','advisor')
-        
+
 
 
         
