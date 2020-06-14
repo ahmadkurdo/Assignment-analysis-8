@@ -584,7 +584,7 @@ if __name__ == "__main__":
     app.displayLoadScreen()
     db.load()
     formatter = Formatter()
-    logedInObjectm= None
+    logedInObject= None
     app.dislpayStartScreen()
     
     while True:
