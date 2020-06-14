@@ -354,25 +354,25 @@ class App:
                 os.system('clear')
         
         
-    def displayRegisterSystemAdminScreen(self, superAdminObject):
+    def displayRegisterationScreen(self, userObject, title, userRole):
         while True:     
-            self.displayTitleBar('Register a new system administrator')
+            self.displayTitleBar('Register a new {}'.format(userRole))
             print('\n')
-            username = input("Enter a username for the new system administrator: ")
+            username = input("Enter a username for the new {}: ".format(userRole))
             self.inputHandler.checkUsername(username)
             if self.inputHandler.error:
                 self.slowprint(self.inputHandler.message)
                 self.slowprint("\n Please try again \n")
                 continue
 
-            password = input("Enter a password for the new system administrator: ")
+            password = input("Enter a password for the new {}: ".format(userRole))
             self.inputHandler.checkPassword(password)
             if self.inputHandler.error:
                 self.slowprint(self.inputHandler.message)
                 self.slowprint("\n Please try again \n")
                 continue
             
-            password2 = input("Confirm the password for the new system administrator: ")
+            password2 = input("Confirm the password for the new {}: ".format(userRole))
             self.inputHandler.checkPassword(password)
             if self.inputHandler.error:
                 self.slowprint(self.inputHandler.message)
@@ -383,8 +383,14 @@ class App:
                 self.slowprint("\nPasswords did not match. Please try again \n")
                 continue
             
-            self.registeredUserObject = superAdminObject.createSystemAdministrator(username,password)
-            self.slowprint("\nSystem administrator successfully registered\n")
+            if isinstance(userObject,superAdministrator):
+                self.registeredUserObject = userObject.createSystemAdministrator(username,password)
+                self.slowprint("\nSystem administrator successfully registered\n")
+            
+            if isinstance(userObject,SystemAdministrator):
+                self.registeredUserObject = userObject.createAdvisor(username,password)
+                self.slowprint("\nAdvisor successfully registered\n")
+            
             break
     
     def displayAllUsersByType(self, userDict, title, userRole):
@@ -392,7 +398,7 @@ class App:
         for user in userDict.values():
             print('Name: ' + str(user['username']) + '\n')
             print('Role: ' + '{}'.format(userRole))
-            x.fastPrint("--------------------------")
+            self.fastPrint("--------------------------")
     
     def displaySystemAdminScreen(self, systemAdminObject):
         while True:
@@ -430,12 +436,14 @@ class App:
 
 
 if __name__ == "__main__":
-    y = superAdministrator('Ahmed', 'test4321')
+    y = SystemAdministrator('Ahmed', 'test4321')
+    print(isinstance(y,SystemAdministrator))
+
     x = App()
     db =dataBase()
     db.load()
     systemAdmins = db.getAll("systemadministrators")
-    x.displayAllUsersByType(systemAdmins,'All system admins','System administrator')
+    x.displayRegisterationScreen(y,'Register a new advisor', 'advisor')
 
         
     db.terminate()
