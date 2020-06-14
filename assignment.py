@@ -157,7 +157,7 @@ class dataBase:
             self.message = 'User with this email already exists'
             self.error = True
         else:
-            self.data["advisors"][object.username] = object.__dict__
+            self.data["clients"][object.email] = object.__dict__
     
     def getClient(self, email):
         try:
@@ -399,6 +399,19 @@ class App:
             print('Name: ' + str(user['username']) + '\n')
             print('Role: ' + '{}'.format(userRole))
             self.fastPrint("--------------------------")
+        time.sleep(5)
+    
+    def displayAllClients(self, userDict):
+        self.displayTitleBar('         All clients overview         ')
+        for user in userDict.values():
+            print('Name: ' + str(user['fullName']))
+            print('Email: ' + str(user['email']))
+            print('Street: ' + str(user['street']))
+            print('House number: ' + str(user['houseNumber']))
+            print('Zipcode: ' + str(user['zipCode']))
+            print('City: ' + str(user['city']))
+            self.fastPrint("--------------------------")
+        time.sleep(5)
     
     def displaySystemAdminScreen(self, systemAdminObject):
         while True:
@@ -438,12 +451,12 @@ class App:
 if __name__ == "__main__":
     y = SystemAdministrator('Ahmed', 'test4321')
     print(isinstance(y,SystemAdministrator))
-
     x = App()
     db =dataBase()
     db.load()
-    systemAdmins = db.getAll("systemadministrators")
-    x.displayRegisterationScreen(y,'Register a new advisor', 'advisor')
+    clients = db.getAll("clients")
+    x.displayAllClients(clients)
+    #x.displayRegisterationScreen(y,'Register a new advisor', 'advisor')
 
         
     db.terminate()
