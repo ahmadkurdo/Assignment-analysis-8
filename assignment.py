@@ -271,8 +271,6 @@ class InputHandler:
             self.error = True
             self.message = "Invalid city.\n We don't provide a service yet in the entered city.\n Cities where we provide services are:\nAmsterdam, Almere, Vlaardingen, Nijmegen', Zutphen, Apeldoorn, Rotterdam, Schiedam, Zwolle,Delft"
 
-
-
 class App:
     quitScreen = False
     loginScreen = False
@@ -524,12 +522,8 @@ class App:
 
 
 if __name__ == "__main__":
-    y = SystemAdministrator('Ahmed', 'test4321')
-    x = App()
-
-    
-    x.displayClientRegisterationScreen(y)
-    #x.displayRegisterationScreen(y,'Register a new advisor', 'advisor')
+    pass
+    #implement application logic
 
         
     
