@@ -199,13 +199,6 @@ class dataBase:
             self.error = True
             self.message = 'Authorization failed. Wrong username or password'
 
-        
-            
-            
-            
-        
-
-
 class Formatter:
     def capitalize(self,text):
         return text.capitalize()
@@ -314,6 +307,7 @@ class App:
     superAdminScreen = False
     systemAdminScreen = False
     registerAvisorScreen = False
+    registerSystemAdminscreen = False
     registerClientScreen = False
     userCredentials = None
     registeredUserObject = None
@@ -340,7 +334,7 @@ class App:
     def displayTitleBar(self, title):
         # Clears the terminal screen, and displays a title bar.
         time.sleep(0.5)
-        os.system('cls')
+        os.system('clear')
         print("\t**********************************************")
         print("\t***  {}  ***".format(str(title)))
         print("\t**********************************************")
@@ -385,6 +379,10 @@ class App:
             self.userCredentials['username'] = self.formatter.makeLowerCase(username)
             self.userCredentials['password'] = str(password)
             break
+    
+    def displayInformationScreen(self,title,message):
+        self.displayTitleBar('  {}  '.format(title))
+        self.slowprint(message)
     
     def displaySuperAdminScreen(self,superAdminObject):
         while True:
@@ -552,11 +550,33 @@ class App:
             else:
                 self.slowprint("\nI didn't understand that choice. Please try again\n")
                 os.system('clear')
+    
+    def decideScreen(self,userObject):
+            self.resetScreen()
+            if isinstance(userObject,superAdministrator):
+                self.superAdminScreen = True
+     
+            if isinstance(userObject,SystemAdministrator):
+                self.systemAdminScreen = True
+            
+            if isinstance(userObject,Advisor):
+                self.advisorScreen = True
+   
+
 
     def resetScreen(self):
-        self.quitScreen = False
-        self.loginScreen = False
-        self.userCredentials = {}
+        quitScreen = False
+        loginScreen = False
+        retrieveSystemAdminscreen = False
+        allSystemAdminsScreen = False
+        allClientsScreen = False
+        allAdvisorsScreen = False
+        superAdminScreen = False
+        systemAdminScreen = False
+        registerAvisorScreen = False
+        registerClientScreen = False
+        userCredentials = None
+        registeredUserObject = None
 
 
 if __name__ == "__main__":
@@ -565,41 +585,52 @@ if __name__ == "__main__":
     app.displayLoadScreen()
     db.load()
     formatter = Formatter()
+    logedInObjectm= None
     app.dislpayStartScreen()
     
-    if app.loginScreen:
-        app.displayLoginScreen()
-    
-    elif app.superAdminScreen:
-        app.displaySuperAdminScreen()
-    
-    elif app.allSystemAdminsScreen:
-        systemAdmins = db.getAll('systemadministrators')
-        app.displayAllUsersByType(systemAdmins,'All system administrators','system administrator')
-    
-    elif app.registerSystemAdminscreen:
-        # pass the logged in object to the function below
-        app.displayRegisterationScreen('System administrator registration','system administrator')
-    
-    elif app.systemAdminScreen:
-        app.displaySystemAdminScreen()
-    
-    elif app.allAdvisorsScreen:
-        advisors = db.getAll('advisors')
-        app.displayAllUsersByType(advisors,'All adivors','advisor')
-    
-    elif app.allClientsScreen:
-        clients = db.getAll('clients')
-        app.displayAllClients(clients)
-    
-    elif app.registerClientScreen:
-        # pass the logged in object to the function below
-        app.displayClientRegisterationScreen()
-    
-    elif app.registerAvisorScreen:
-        # pass the logged in object to the function below
-        app.displayRegisterationScreen('Advisor registration','advisor')
-    
+    while True:
+
+        if app.loginScreen:
+            app.displayLoginScreen()
+            logedInObject = db.login(app.userCredentials['username'],app.userCredentials['password'])
+            if db.error:
+                print('im in db error')
+                app.displayInformationScreen('WARNING', db.message)
+            if db.grantAccess:
+                app.decideScreen(logedInObject)
+                print('im in grant access')
+                
+
+        if app.superAdminScreen:
+            app.displaySuperAdminScreen(logedInObject)
+        
+        elif app.allSystemAdminsScreen:
+            systemAdmins = db.getAll('systemadministrators')
+            app.displayAllUsersByType(systemAdmins,'All system administrators','system administrator')
+        
+        elif app.registerSystemAdminscreen:
+            # pass the logged in object to the function below
+            app.displayRegisterationScreen('System administrator registration','system administrator')
+        
+        elif app.systemAdminScreen:
+            app.displaySystemAdminScreen()
+        
+        elif app.allAdvisorsScreen:
+            advisors = db.getAll('advisors')
+            app.displayAllUsersByType(advisors,'All adivors','advisor')
+        
+        elif app.allClientsScreen:
+            clients = db.getAll('clients')
+            app.displayAllClients(clients)
+        
+        elif app.registerClientScreen:
+            # pass the logged in object to the function below
+            app.displayClientRegisterationScreen()
+        
+        elif app.registerAvisorScreen:
+            # pass the logged in object to the function below
+            app.displayRegisterationScreen('Advisor registration','advisor')
+        
 
 
         
