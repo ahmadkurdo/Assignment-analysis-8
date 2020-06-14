@@ -1,7 +1,10 @@
 import re
 from time import sleep
+import sys
+import os
 import json
 import ast
+import time
 
 class User:
     userName = None
@@ -40,8 +43,7 @@ class Advisor(User):
         self.password = password
         self.role = 3
 
-class Client:
-    
+class Client: 
     fullName = None
     zipCode = None
     street = None
@@ -83,7 +85,6 @@ class Encryptor:
                 result += self.key[i]
             except ValueError:
                 result += l
-
         return result
 
     
@@ -194,8 +195,7 @@ class InputHandler:
         and re.search(regex_upper,password) and (len(password)>=8 and len(password)<=30)):
             self.error = False
         else:
-            self.message = '''Invalid password. Please make sure your password contains a combination of at least 
-            one lowercase letter, one uppercase letter, one digit, and one special character and has between 8 to 30 characters'''
+            self.message = 'Invalid password.\n\n Please make sure your password contains a combination of at least\n one lowercase letter, one uppercase letter, one digit, and one special\n character and has between 8 to 30 characters'
             self.error = True
   
     def checkUsername(self,username):
@@ -203,12 +203,10 @@ class InputHandler:
         #to do: Handel \
         regex_restricted_characters = '[~!@#$%^&*+=|/?(){}:<>,;`\[\]]'
         if(re.search(regex_restricted_characters,username) or len(username)<5 or len(username)>20 ):
-            self.error = False
-            self.message = '''Invalid username. The username may only contain 
-            letters (a-z), numbers (0-9), dashes (-), underscores (_), apostrophes ('), and periods (.) 
-            and has to be between 5 to 20 characters'''
-        else:
             self.error = True
+            self.message = "Invalid username.\nThe username may only contain letters (a-z), numbers (0-9),\ndashes (-), underscores (_), apostrophes ('), and periods (.)\nand has to be between 5 to 20 characters"
+        else:
+            self.error = False
             
     def checkZipCode(self,zipcode):
         #to do: change lowercase to uppercase
@@ -254,8 +252,136 @@ class InputHandler:
         else:
             self.message = '''Invalid house number. Please make sure that it contains at least 1 number'''
             self.error = True
-class display:
-     pass
+
+class App:
+    quitScreen = False
+    loginScreen = False
+    retrieveSystemAdminscreen = False
+    registerSystemAdminscreen = False
+    userCredentials = {}
+    registeredUserObject = None
+    inputHandler = InputHandler()
+
+    def slowprint(self,s):
+        for c in s + '\n':
+            sys.stdout.write(c)
+            sys.stdout.flush()
+            time.sleep(0.08)
+
+    def displayTitleBar(self, title):
+        # Clears the terminal screen, and displays a title bar.
+        time.sleep(0.5)
+        os.system('clear')
+        print("\t**********************************************")
+        print("\t***  {}  ***".format(str(title)))
+        print("\t**********************************************")
+        
+    def dislpayStartScreen(self):
+        while True:
+            self.displayTitleBar('Welcome to the construction company')
+            print("\n[1] Login.")
+            print("[q] Quit.")
+            
+            choice = input("What would you like to do? ")
+            if choice == '1':
+                self.loginScreen = True
+                break
+            elif choice == 'q':
+                self.quitScreen = True
+                break
+            else:
+                self.slowprint("\nI didn't understand that choice. Please try again\n")
+                os.system('clear')
+    
+    def displayLoginScreen(self):
+        while True:     
+            
+            self.displayTitleBar('Please provide your login credentials')
+            print('\n')
+            username = input("Enter your username: ")
+            self.inputHandler.checkUsername(username)
+            if self.inputHandler.error:
+                self.slowprint(self.inputHandler.message)
+                self.slowprint("\n Please try again \n")
+                continue
+
+            password = input("Enter your password: ")
+            self.inputHandler.checkPassword(password)
+            if self.inputHandler.error:
+                self.slowprint(self.inputHandler.message)
+                self.slowprint("\n Please try again \n")
+                continue
+
+            self.userCredentials['username'] = str(username)
+            self.userCredentials['password'] = str(password)
+            break
+    
+    def displaySuperAdminScreen(self,superAdminObject):
+        while True:
+            self.displayTitleBar("Super Administrator - {}".format(str(superAdminObject.username)))
+            print("\n[1] Register a system administrator.")
+            print("[2] Display system administrators.")
+            print("[q] Quit.")
+            
+            choice = input("What would you like to do? ")
+            if str(choice) == '1':
+                self.registerSystemAdminscreen = True
+                break
+            elif str(choice) == '2':
+                self.retrieveSystemAdminscreen = True
+                break
+            elif str(choice) == 'q':
+                self.quitScreen = True
+                break
+            else:
+                self.slowprint("\nI didn't understand that choice. Please try again\n")
+                os.system('clear')
+        
+        
+    def displayRegisterSystemAdminScreen(self, superAdminObject):
+        while True:     
+            self.displayTitleBar('Register a new system administrator')
+            print('\n')
+            username = input("Enter a username for the new system administrator: ")
+            self.inputHandler.checkUsername(username)
+            if self.inputHandler.error:
+                self.slowprint(self.inputHandler.message)
+                self.slowprint("\n Please try again \n")
+                continue
+
+            password = input("Enter a password for the new system administrator: ")
+            self.inputHandler.checkPassword(password)
+            if self.inputHandler.error:
+                self.slowprint(self.inputHandler.message)
+                self.slowprint("\n Please try again \n")
+                continue
+            
+            password2 = input("Confirm the password for the new system administrator: ")
+            self.inputHandler.checkPassword(password)
+            if self.inputHandler.error:
+                self.slowprint(self.inputHandler.message)
+                self.slowprint("\n Please try again \n")
+                continue
+            
+            if password != password2:
+                self.slowprint("\nPasswords did not match. Please try again \n")
+                continue
+            
+            self.registeredUserObject = superAdminObject.createSystemAdministrator(username,password)
+            self.slowprint("\nSystem administrator successfully registered\n")
+            break
+
+    def resetScreen(self):
+        self.quitScreen = False
+        self.loginScreen = False
+        self.userCredentials = {}
+
+
+if __name__ == "__main__":
+    y = superAdministrator('Ahmed', 'test4321')
+    x = App()
+    x.displayRegisterSystemAdminScreen(y)
+    print(x.registeredUserObject)
     
 
 
