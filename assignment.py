@@ -32,7 +32,7 @@ class SystemAdministrator(User):
         advisor = Advisor(username,password)
         return advisor
     
-    def createClients(self,fullName,zipcode,street,houseNumber,email,phoneNumber,city):
+    def createClient(self,fullName,zipcode,street,houseNumber,email,phoneNumber,city):
         client = Client(fullName,zipcode,street,houseNumber,email,phoneNumber,city)
         return client
    
@@ -173,10 +173,19 @@ class Authentication:
     grantAccess = False
     def authenticate(self, username, password):
         pass
+class Formatter:
+    def capitalize(self,text):
+        return text.capitalize()
+    
+    def makeLowerCase(self,text):
+        return text.lower()
 
 class InputHandler:
+    formatter = Formatter()
     error = None
     message = ''
+    cities = ['Amsterdam','Almere','Vlaardingen','Nijmegen',
+            'Zutphen','Apeldoorn','Rotterdam','Schiedam','Zwolle','Delft']
     
     def checkEmail(self,email):
         email = str(email)
@@ -231,11 +240,11 @@ class InputHandler:
     def checkFullName(self,fullName):
         #to do: Handel \
         regex_restricted_characters = '[~!@#$%^&*+=|/?(){}:<>,;`\[\]\d]'
-        if(re.search(regex_restricted_characters,fullName)):
-            self.error = False
-            self.message = '''Invalid name. Please make sure that your name does not contain special characters or digit.'''
-        else:
+        if(re.search(regex_restricted_characters,fullName) or len(fullName)< 5 or len(fullName)>25):
             self.error = True
+            self.message = '''Invalid name. Please make sure that your name does not contain\nspecial characters or digits and is between 5 to 25 characters'''
+        else:
+            self.error = False
     
     def checkStreet(self,street):
         #to do: Handel \
@@ -255,6 +264,14 @@ class InputHandler:
         else:
             self.message = '''Invalid house number. Please make sure that it contains at least 1 number'''
             self.error = True
+    def checkCity(self, city):
+        if city in cities:
+            self.error = False
+        else:
+            self.error = True
+            self.message = "Invalid city.\n We don't provide a service yet in the entered city.\n Cities where we provide services are:\nAmsterdam, Almere, Vlaardingen, Nijmegen', Zutphen, Apeldoorn, Rotterdam, Schiedam, Zwolle,Delft"
+
+
 
 class App:
     quitScreen = False
@@ -270,6 +287,7 @@ class App:
     userCredentials = {}
     registeredUserObject = None
     inputHandler = InputHandler()
+    formatter = Formatter()
 
     def slowprint(self,s):
         for c in s + '\n':
@@ -384,13 +402,70 @@ class App:
                 continue
             
             if isinstance(userObject,superAdministrator):
-                self.registeredUserObject = userObject.createSystemAdministrator(username,password)
+                self.registeredUserObject = userObject.createSystemAdministrator(self.formatter.makeLowerCase(username),password)
                 self.slowprint("\nSystem administrator successfully registered\n")
             
             if isinstance(userObject,SystemAdministrator):
-                self.registeredUserObject = userObject.createAdvisor(username,password)
+                self.registeredUserObject = userObject.createAdvisor(self.formatter.makeLowerCase(username),password)
                 self.slowprint("\nAdvisor successfully registered\n")
             
+            break
+    
+    def displayClientRegisterationScreen(self,userObject):
+        while True:     
+            self.displayTitleBar('         Register a new client      ')
+            print('\n')
+            fullname = input("Enter the full name of the new client: ")
+            self.inputHandler.checkFullName(fullname)
+            if self.inputHandler.error:
+                self.slowprint(self.inputHandler.message)
+                self.slowprint("\n Please try again \n")
+                continue
+            
+            zipcode = input("Enter the zipcode of the new client: ")
+            self.inputHandler.checkZipCode(zipcode)
+            if self.inputHandler.error:
+                self.slowprint(self.inputHandler.message)
+                self.slowprint("\n Please try again \n")
+                continue
+            
+            street = input("Enter the street of the new client: ")
+            self.inputHandler.checkStreet(street)
+            if self.inputHandler.error:
+                self.slowprint(self.inputHandler.message)
+                self.slowprint("\n Please try again \n")
+                continue
+            
+            housenumber = input("Enter the house number of the new client: ")
+            self.inputHandler.checkHouseNumber(housenumber)
+            if self.inputHandler.error:
+                self.slowprint(self.inputHandler.message)
+                self.slowprint("\n Please try again \n")
+                continue
+            
+            email = input("Enter the email of the new client: ")
+            self.inputHandler.checkEmail(email)
+            if self.inputHandler.error:
+                self.slowprint(self.inputHandler.message)
+                self.slowprint("\n Please try again \n")
+                continue
+            
+            phonenumber = input("Enter the phone number of the new client: ")
+            self.inputHandler.checkPhoneNumber(phonenumber)
+            if self.inputHandler.error:
+                self.slowprint(self.inputHandler.message)
+                self.slowprint("\n Please try again \n")
+                continue
+            
+            city = input("Enter the city of the new client: ")
+            self.inputHandler.checkCity(phonenumber)
+            if self.inputHandler.error:
+                self.slowprint(self.inputHandler.message)
+                self.slowprint("\n Please try again \n")
+                continue   
+            
+            userObject.createClient(fullname, zipcode,street,housenumber,email,phonenumber,self.formatter.capitalize(city))
+            self.slowprint("\nClient successfully registered\n")
             break
     
     def displayAllUsersByType(self, userDict, title, userRole):
@@ -450,15 +525,12 @@ class App:
 
 if __name__ == "__main__":
     y = SystemAdministrator('Ahmed', 'test4321')
-    print(isinstance(y,SystemAdministrator))
     x = App()
-    db =dataBase()
-    db.load()
-    clients = db.getAll("clients")
-    x.displayAllClients(clients)
+
+    
+    x.displayClientRegisterationScreen(y)
     #x.displayRegisterationScreen(y,'Register a new advisor', 'advisor')
 
         
-    db.terminate()
     
 
