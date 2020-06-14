@@ -165,6 +165,9 @@ class dataBase:
         except KeyError:
             self.message = 'Email does not exist'
             self.error = True
+    
+    def getAll(self, userType):
+        return self.data[userType]
 
 class Authentication:
     grantAccess = False
@@ -267,6 +270,12 @@ class App:
             sys.stdout.write(c)
             sys.stdout.flush()
             time.sleep(0.08)
+    
+    def fastPrint(self,s):
+        for c in s + '\n':
+            sys.stdout.write(c)
+            sys.stdout.flush()
+            time.sleep(0.05)
 
     def displayTitleBar(self, title):
         # Clears the terminal screen, and displays a title bar.
@@ -370,6 +379,12 @@ class App:
             self.registeredUserObject = superAdminObject.createSystemAdministrator(username,password)
             self.slowprint("\nSystem administrator successfully registered\n")
             break
+    
+    def displayAllSystemAdmins(self, systemAdminDict):
+        for systemAdmin in systemAdminDict.values():
+            print('Name: ' + str(systemAdmin['username']) + '\n')
+            print('Role: ' + 'System administrator')
+            x.fastPrint("--------------------------")
 
     def resetScreen(self):
         self.quitScreen = False
@@ -380,8 +395,12 @@ class App:
 if __name__ == "__main__":
     y = superAdministrator('Ahmed', 'test4321')
     x = App()
-    x.displayRegisterSystemAdminScreen(y)
-    print(x.registeredUserObject)
-    
+    db =dataBase()
+    db.load()
+    systemAdmins = db.getAll("systemadministrators")
+    x.displayAllSystemAdmins(systemAdmins)
 
+        
+    db.terminate()
+    
 
