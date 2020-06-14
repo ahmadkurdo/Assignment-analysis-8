@@ -298,6 +298,11 @@ class App:
             sys.stdout.write(c)
             sys.stdout.flush()
             time.sleep(0.05)
+    
+    def displayLoadScreen(self):
+        os.system('clear')
+        self.slowprint("\t\t\tLoading all the data")
+        self.fastPrint("--------------------------------------------------------------------------------")
 
     def displayTitleBar(self, title):
         # Clears the terminal screen, and displays a title bar.
@@ -378,21 +383,21 @@ class App:
             self.inputHandler.checkUsername(username)
             if self.inputHandler.error:
                 self.slowprint(self.inputHandler.message)
-                self.slowprint("\n Please try again \n")
+                self.slowprint("\nPlease try again \n")
                 continue
 
             password = input("Enter a password for the new {}: ".format(userRole))
             self.inputHandler.checkPassword(password)
             if self.inputHandler.error:
                 self.slowprint(self.inputHandler.message)
-                self.slowprint("\n Please try again \n")
+                self.slowprint("\nPlease try again \n")
                 continue
             
             password2 = input("Confirm the password for the new {}: ".format(userRole))
             self.inputHandler.checkPassword(password)
             if self.inputHandler.error:
                 self.slowprint(self.inputHandler.message)
-                self.slowprint("\n Please try again \n")
+                self.slowprint("\nPlease try again \n")
                 continue
             
             if password != password2:
@@ -417,14 +422,14 @@ class App:
             self.inputHandler.checkFullName(fullname)
             if self.inputHandler.error:
                 self.slowprint(self.inputHandler.message)
-                self.slowprint("\n Please try again \n")
+                self.slowprint("\nPlease try again \n")
                 continue
             
             zipcode = input("Enter the zipcode of the new client: ")
             self.inputHandler.checkZipCode(zipcode)
             if self.inputHandler.error:
                 self.slowprint(self.inputHandler.message)
-                self.slowprint("\n Please try again \n")
+                self.slowprint("\nPlease try again \n")
                 continue
             
             street = input("Enter the street of the new client: ")
@@ -438,7 +443,7 @@ class App:
             self.inputHandler.checkHouseNumber(housenumber)
             if self.inputHandler.error:
                 self.slowprint(self.inputHandler.message)
-                self.slowprint("\n Please try again \n")
+                self.slowprint("\nPlease try again \n")
                 continue
             
             email = input("Enter the email of the new client: ")
@@ -452,14 +457,14 @@ class App:
             self.inputHandler.checkPhoneNumber(phonenumber)
             if self.inputHandler.error:
                 self.slowprint(self.inputHandler.message)
-                self.slowprint("\n Please try again \n")
+                self.slowprint("\nPlease try again \n")
                 continue
             
             city = input("Enter the city of the new client: ")
             self.inputHandler.checkCity(phonenumber)
             if self.inputHandler.error:
                 self.slowprint(self.inputHandler.message)
-                self.slowprint("\n Please try again \n")
+                self.slowprint("\nPlease try again \n")
                 continue   
             
             userObject.createClient(fullname, zipcode,street,housenumber,email,phonenumber,self.formatter.capitalize(city))
@@ -522,8 +527,47 @@ class App:
 
 
 if __name__ == "__main__":
-    pass
-    #implement application logic
+    app = App()
+    db = dataBase()
+    app.displayLoadScreen()
+    db.load()
+    formatter = Formatter()
+    app.dislpayStartScreen()
+    
+    if app.loginScreen:
+        app.displayLoginScreen()
+    
+    elif app.superAdminScreen:
+        app.displaySuperAdminScreen()
+    
+    elif app.allSystemAdminsScreen:
+        systemAdmins = db.getAll('systemadministrators')
+        app.displayAllUsersByType(systemAdmins,'All system administrators','system administrator')
+    
+    elif app.registerSystemAdminscreen:
+        # pass the logged in object to the function below
+        app.displayRegisterationScreen('System administrator registration','system administrator')
+    
+    elif app.systemAdminScreen:
+        app.displaySystemAdminScreen()
+    
+    elif app.allAdvisorsScreen:
+        advisors = db.getAll('advisors')
+        app.displayAllUsersByType(advisors,'All adivors','advisor')
+    
+    elif app.allClientsScreen:
+        clients = db.getAll('clients')
+        app.displayAllClients(clients)
+    
+    elif app.registerClientScreen:
+        # pass the logged in object to the function below
+        app.displayClientRegisterationScreen()
+    
+    elif app.registerAvisorScreen:
+        # pass the logged in object to the function below
+        app.displayRegisterationScreen('Advisor registration','advisor')
+    
+
 
         
     
