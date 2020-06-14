@@ -11,7 +11,6 @@ class User:
     password = None
 
 class superAdministrator(User):
-    
     def __init__(self,username,password):
         self.username = username
         self.password = password
@@ -22,7 +21,6 @@ class superAdministrator(User):
         return systemAdministrator
 
 class SystemAdministrator(User):
-    
     def __init__(self,username,password):
         self.username = username
         self.password = password
@@ -37,7 +35,6 @@ class SystemAdministrator(User):
         return client
    
 class Advisor(User):
-     
     def __init__(self,username,password):
         self.username = username
         self.password = password
@@ -91,6 +88,7 @@ class Encryptor:
 class dataBase:
     error = False
     data = None
+    grantAccess = False
     message = ''
     encryptor = Encryptor()
 
@@ -168,11 +166,46 @@ class dataBase:
     
     def getAll(self, userType):
         return self.data[userType]
+    
+    def login(self, username, password):
+        if self.getSuperAdministrator(username):
+            superAdmin = self.getSuperAdministrator(username)
+            if superAdmin['password'] == password:
+                logedInsuperAdmin = superAdministrator(username,password)
+                self.grantAccess = True
+                self.error = False
+                self.message = 'Access granted'
+                return logedInsuperAdmin
+        
+        elif self.getSystemAdministrator(username):
+            systemAdmin = self.getSystemAdministrator(username)
+            if systemAdmin['password'] == password:
+                logedInsystemAdmin = SystemAdministrator(username,password)
+                self.grantAccess = True
+                self.error = False
+                self.message = 'Access granted'
+                return logedInsystemAdmin
 
-class Authentication:
-    grantAccess = False
-    def authenticate(self, username, password):
-        pass
+        elif self.getAdvisor(username):
+            advisor = self.getAdvisor(username)
+            if advisor['password'] == password:
+                logedInAdvisor = Advisor(username,password)
+                self.grantAccess = True
+                self.error = False
+                self.message = 'Access granted'
+                return logedInAdvisor
+        else:
+            grantAccess = False
+            self.error = True
+            self.message = 'Authorization failed. Wrong username or password'
+
+        
+            
+            
+            
+        
+
+
 class Formatter:
     def capitalize(self,text):
         return text.capitalize()
@@ -282,7 +315,7 @@ class App:
     systemAdminScreen = False
     registerAvisorScreen = False
     registerClientScreen = False
-    userCredentials = {}
+    userCredentials = None
     registeredUserObject = None
     inputHandler = InputHandler()
     formatter = Formatter()
@@ -307,7 +340,7 @@ class App:
     def displayTitleBar(self, title):
         # Clears the terminal screen, and displays a title bar.
         time.sleep(0.5)
-        os.system('clear')
+        os.system('cls')
         print("\t**********************************************")
         print("\t***  {}  ***".format(str(title)))
         print("\t**********************************************")
@@ -348,8 +381,8 @@ class App:
                 self.slowprint(self.inputHandler.message)
                 self.slowprint("\n Please try again \n")
                 continue
-
-            self.userCredentials['username'] = str(username)
+            self.userCredentials = {}
+            self.userCredentials['username'] = self.formatter.makeLowerCase(username)
             self.userCredentials['password'] = str(password)
             break
     
