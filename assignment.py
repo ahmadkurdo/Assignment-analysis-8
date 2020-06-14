@@ -387,11 +387,11 @@ class App:
             self.slowprint("\nSystem administrator successfully registered\n")
             break
     
-    def displayAllSystemAdmins(self, systemAdminDict):
-        self.displayTitleBar('         All system admins         ')
-        for systemAdmin in systemAdminDict.values():
-            print('Name: ' + str(systemAdmin['username']) + '\n')
-            print('Role: ' + 'System administrator')
+    def displayAllUsersByType(self, userDict, title, userRole):
+        self.displayTitleBar('         {}         '.format(title))
+        for user in userDict.values():
+            print('Name: ' + str(user['username']) + '\n')
+            print('Role: ' + '{}'.format(userRole))
             x.fastPrint("--------------------------")
     
     def displaySystemAdminScreen(self, systemAdminObject):
@@ -435,7 +435,7 @@ if __name__ == "__main__":
     db =dataBase()
     db.load()
     systemAdmins = db.getAll("systemadministrators")
-    x.displayAllSystemAdmins(systemAdmins)
+    x.displayAllUsersByType(systemAdmins,'All system admins','System administrator')
 
         
     db.terminate()
