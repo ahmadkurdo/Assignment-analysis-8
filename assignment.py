@@ -11,7 +11,6 @@ class User:
     password = None
 
 class superAdministrator(User):
-    
     def __init__(self,username,password):
         self.username = username
         self.password = password
@@ -22,7 +21,6 @@ class superAdministrator(User):
         return systemAdministrator
 
 class SystemAdministrator(User):
-    
     def __init__(self,username,password):
         self.username = username
         self.password = password
@@ -37,7 +35,6 @@ class SystemAdministrator(User):
         return client
    
 class Advisor(User):
-     
     def __init__(self,username,password):
         self.username = username
         self.password = password
@@ -91,6 +88,7 @@ class Encryptor:
 class dataBase:
     error = False
     data = None
+    grantAccess = False
     message = ''
     encryptor = Encryptor()
 
@@ -168,17 +166,48 @@ class dataBase:
     
     def getAll(self, userType):
         return self.data[userType]
+    
+    def login(self, username, password):
+        if self.getSuperAdministrator(username):
+            superAdmin = self.getSuperAdministrator(username)
+            if superAdmin['password'] == password:
+                logedInsuperAdmin = superAdministrator(username,password)
+                self.grantAccess = True
+                self.error = False
+                self.message = 'Access granted'
+                return logedInsuperAdmin
+            
+        
+        if self.getSystemAdministrator(username):
+            systemAdmin = self.getSystemAdministrator(username)
+            if systemAdmin['password'] == password:
+                logedInsystemAdmin = SystemAdministrator(username,password)
+                self.grantAccess = True
+                self.error = False
+                self.message = 'Access granted'
+                return logedInsystemAdmin
 
-class Authentication:
-    grantAccess = False
-    def authenticate(self, username, password):
-        pass
+        if self.getAdvisor(username):
+            advisor = self.getAdvisor(username)
+            if advisor['password'] == password:
+                logedInAdvisor = Advisor(username,password)
+                self.grantAccess = True
+                self.error = False
+                self.message = 'Access granted'
+                return logedInAdvisor
+        
+        self.grantAccess = False
+        self.error = True
+        self.message = 'Authorization failed. Wrong username or password'
+
 class Formatter:
     def capitalize(self,text):
         return text.capitalize()
     
     def makeLowerCase(self,text):
         return text.lower()
+    def makeUpperCase(self,text):
+        return text.upper()
 
 class InputHandler:
     formatter = Formatter()
@@ -250,12 +279,13 @@ class InputHandler:
         #to do: Handel \
         regex_restricted_characters = '[~!@#$%^&*+=|/?(){}:<>,;`\[\]]'
         if(re.search(regex_restricted_characters,street)):
-            self.error = False
-            self.message = '''Invalid street. Please make sure that your name does not contain special characters.'''
-        else:
             self.error = True
+            self.message = '''Invalid street. Please make sure that the street name does not contain special characters.'''
+        else:
+            self.error = False
     
     def checkHouseNumber(self,houseNumber):
+        #check not working it must have a letter.
         #to do: Handel \'
         regex_house_number_pattern = '\d{1,5}[A-Z]{1,2}'
         regex_restricted_characters = '[~!@#$%^&*_+=.|/?(){}:<>,;`\[\]]'
@@ -265,11 +295,11 @@ class InputHandler:
             self.message = '''Invalid house number. Please make sure that it contains at least 1 number'''
             self.error = True
     def checkCity(self, city):
-        if city in cities:
+        if city in self.cities:
             self.error = False
         else:
             self.error = True
-            self.message = "Invalid city.\n We don't provide a service yet in the entered city.\n Cities where we provide services are:\nAmsterdam, Almere, Vlaardingen, Nijmegen', Zutphen, Apeldoorn, Rotterdam, Schiedam, Zwolle,Delft"
+            self.message = "Invalid city.\n We don't provide a service yet in the entered city.\n Cities where we provide services are:\nAmsterdam, Almere, Vlaardingen, Nijmegen', Zutphen, Apeldoorn, Rotterdam, Schiedam, Zwolle, Delft"
 
 class App:
     quitScreen = False
@@ -281,8 +311,9 @@ class App:
     superAdminScreen = False
     systemAdminScreen = False
     registerAvisorScreen = False
+    registerSystemAdminscreen = False
     registerClientScreen = False
-    userCredentials = {}
+    userCredentials = None
     registeredUserObject = None
     inputHandler = InputHandler()
     formatter = Formatter()
@@ -348,10 +379,14 @@ class App:
                 self.slowprint(self.inputHandler.message)
                 self.slowprint("\n Please try again \n")
                 continue
-
-            self.userCredentials['username'] = str(username)
+            self.userCredentials = {}
+            self.userCredentials['username'] = self.formatter.makeLowerCase(username)
             self.userCredentials['password'] = str(password)
             break
+    
+    def displayInformationScreen(self,title,message):
+        self.displayTitleBar('  {}  '.format(title))
+        self.slowprint(message)
     
     def displaySuperAdminScreen(self,superAdminObject):
         while True:
@@ -461,13 +496,14 @@ class App:
                 continue
             
             city = input("Enter the city of the new client: ")
-            self.inputHandler.checkCity(phonenumber)
+            city =  self.formatter.makeLowerCase(city)  
+            city = self.formatter.capitalize(city)
+            self.inputHandler.checkCity(city)
             if self.inputHandler.error:
                 self.slowprint(self.inputHandler.message)
                 self.slowprint("\nPlease try again \n")
-                continue   
-            
-            userObject.createClient(fullname, zipcode,street,housenumber,email,phonenumber,self.formatter.capitalize(city))
+                continue
+            self.registeredUserObject = userObject.createClient(fullname, zipcode,street,housenumber,email,phonenumber,city)
             self.slowprint("\nClient successfully registered\n")
             break
     
@@ -519,54 +555,114 @@ class App:
             else:
                 self.slowprint("\nI didn't understand that choice. Please try again\n")
                 os.system('clear')
-
+    
+    def decideScreen(self,userObject):
+            self.resetScreen()
+            if isinstance(userObject,superAdministrator):
+                self.superAdminScreen = True
+     
+            if isinstance(userObject,SystemAdministrator):
+                self.systemAdminScreen = True
+            
+            if isinstance(userObject,Advisor):
+                self.advisorScreen = True
+   
     def resetScreen(self):
-        self.quitScreen = False
-        self.loginScreen = False
-        self.userCredentials = {}
+        quitScreen = False
+        loginScreen = False
+        retrieveSystemAdminscreen = False
+        allSystemAdminsScreen = False
+        allClientsScreen = False
+        allAdvisorsScreen = False
+        superAdminScreen = False
+        systemAdminScreen = False
+        registerAvisorScreen = False
+        registerClientScreen = False
+        userCredentials = None
+        registeredUserObject = None
 
 
 if __name__ == "__main__":
-    app = App()
-    db = dataBase()
-    app.displayLoadScreen()
-    db.load()
-    formatter = Formatter()
-    app.dislpayStartScreen()
-    
-    if app.loginScreen:
-        app.displayLoginScreen()
-    
-    elif app.superAdminScreen:
-        app.displaySuperAdminScreen()
-    
-    elif app.allSystemAdminsScreen:
-        systemAdmins = db.getAll('systemadministrators')
-        app.displayAllUsersByType(systemAdmins,'All system administrators','system administrator')
-    
-    elif app.registerSystemAdminscreen:
-        # pass the logged in object to the function below
-        app.displayRegisterationScreen('System administrator registration','system administrator')
-    
-    elif app.systemAdminScreen:
-        app.displaySystemAdminScreen()
-    
-    elif app.allAdvisorsScreen:
-        advisors = db.getAll('advisors')
-        app.displayAllUsersByType(advisors,'All adivors','advisor')
-    
-    elif app.allClientsScreen:
-        clients = db.getAll('clients')
-        app.displayAllClients(clients)
-    
-    elif app.registerClientScreen:
-        # pass the logged in object to the function below
-        app.displayClientRegisterationScreen()
-    
-    elif app.registerAvisorScreen:
-        # pass the logged in object to the function below
-        app.displayRegisterationScreen('Advisor registration','advisor')
-    
+    while True:
+        
+        app = App()
+        db = dataBase()
+        app.displayLoadScreen()
+        db.load()
+        formatter = Formatter()
+        logedInObject= None
+        app.dislpayStartScreen()
+        if app.quitScreen:
+            app.displayInformationScreen('\t\tTerminating       \t', 'We hope to see you soon again ;)')
+            time.sleep(1)
+            os.system('clear')
+            sys.exit()
+        
+        while True:
+            
+            if app.loginScreen:
+                app.displayLoginScreen()
+                logedInObject = db.login(app.userCredentials['username'],app.userCredentials['password'])
+                if db.error:
+                    app.displayInformationScreen('\t\tWARNING    \t\t', db.message)
+                if db.grantAccess:
+                    app.decideScreen(logedInObject)
+                    app.loginScreen = False
+                    
+            elif app.superAdminScreen:
+                app.displaySuperAdminScreen(logedInObject)
+                app.superAdminScreen = False
+            
+            elif app.allSystemAdminsScreen:
+                systemAdmins = db.getAll('systemadministrators')
+                app.displayAllUsersByType(systemAdmins,'All system administrators','system administrator')
+                app.allSystemAdminsScreen = False
+                app.superAdminScreen = True
+            
+            elif app.registerSystemAdminscreen:
+                app.displayRegisterationScreen(logedInObject,'System administrator registration','system administrator')
+                createdObject = app.registeredUserObject
+                db.registerSystemAdministrator(createdObject)
+                app.registerSystemAdminscreen = False
+                app.superAdminScreen = True
+            
+            elif app.systemAdminScreen:
+                app.displaySystemAdminScreen(logedInObject)
+                app.systemAdminScreen = False
+            
+            elif app.allAdvisorsScreen:
+                advisors = db.getAll('advisors')
+                app.displayAllUsersByType(advisors,'All adivors','advisor')
+                app.allAdvisorsScreen = False
+                app.systemAdminScreen = True
+            
+            elif app.allClientsScreen:
+                clients = db.getAll('clients')
+                app.displayAllClients(clients)
+                app.allClientsScreen = False
+                app.systemAdminScreen = True
+            
+            elif app.registerClientScreen:
+                app.displayClientRegisterationScreen(logedInObject)
+                createdObject = app.registeredUserObject
+                db.registerClient(createdObject)
+                app.registerClientScreen = False
+                app.systemAdminScreen = True
+
+            
+            elif app.registerAvisorScreen:
+                app.displayRegisterationScreen(logedInObject,'Advisor registration','advisor')
+                createdObject = app.registeredUserObject
+                db.registerAdvisor(createdObject)
+                app.registerAdvisorScreen = False
+                app.systemAdminScreen = True
+            
+            elif app.quitScreen:
+                app.displayInformationScreen('\t\tLogging out    \t', 'We hope to see you soon again ;)')
+                db.terminate()
+                time.sleep(2)
+                break
+
 
 
         
