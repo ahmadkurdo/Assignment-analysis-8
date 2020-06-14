@@ -195,7 +195,7 @@ class dataBase:
                 self.message = 'Access granted'
                 return logedInAdvisor
         else:
-            grantAccess = False
+            self.grantAccess = False
             self.error = True
             self.message = 'Authorization failed. Wrong username or password'
 
