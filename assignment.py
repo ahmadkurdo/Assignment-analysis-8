@@ -1,6 +1,10 @@
 import re
 from time import sleep
+import sys
+import os
 import json
+import ast
+import time
 
 class User:
     userName = None
@@ -28,7 +32,7 @@ class SystemAdministrator(User):
         advisor = Advisor(username,password)
         return advisor
     
-    def createClients(self,fullName,zipcode,street,houseNumber,email,phoneNumber,city):
+    def createClient(self,fullName,zipcode,street,houseNumber,email,phoneNumber,city):
         client = Client(fullName,zipcode,street,houseNumber,email,phoneNumber,city)
         return client
    
@@ -39,9 +43,7 @@ class Advisor(User):
         self.password = password
         self.role = 3
 
-class Client:
-    #▪ City (system should generate a list of 10 city names of your choice predefined in the system)
-    
+class Client: 
     fullName = None
     zipCode = None
     street = None
@@ -62,7 +64,6 @@ class Client:
 
 class Encryptor:
     key = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
-
     def encrypt(self, plaintext):
         """Encrypt the string and return the ciphertext"""
         result = ''
@@ -73,7 +74,6 @@ class Encryptor:
                 result += self.key[i]
             except ValueError:
                 result += l
-
         return result
 
     def decrypt(self,ciphertext):
@@ -85,9 +85,9 @@ class Encryptor:
                 result += self.key[i]
             except ValueError:
                 result += l
-
         return result
 
+    
 class dataBase:
     error = False
     data = None
@@ -105,11 +105,16 @@ class dataBase:
         self.data = json.loads(decrypted)
 
     def terminate(self):
+        data = eval(json.dumps(self.data))
         with open('data.json', 'w') as f:
-            encrypted = self.encryptor.encrypt(self.data)
-            json.dump(encrypted, f,indent=2)
+            encrypted = self.encryptor.encrypt(str(data))
+            encrypted_dict = ast.literal_eval(encrypted) 
+            json.dump(encrypted_dict, f,indent=2)
             f.close()
 
+    def exists(self,object):
+        if (self.getAdvisor(object.username) or self.getSystemAdministrator(object.username) or self.getSuperAdministrator(object.username)):
+            return True
     
     def getAdvisor(self, username):
         try:
@@ -119,9 +124,10 @@ class dataBase:
             self.error = True
 
     def registerAdvisor(self, object):
-        if self.getAdvisor(object.username):
+        if self.exists(object):
             self.message = 'Username already exists'
             self.error = True
+            print("Username is already taken")
         else:
             self.data["advisors"][object.username] = object.__dict__
     
@@ -133,7 +139,7 @@ class dataBase:
             self.error = True
     
     def registerSystemAdministrator(self, object):
-        if self.getSystemAdministrator(object.username):
+        if self.exists(object):
             self.message = 'Username already exists'
             self.error = True
         else:
@@ -141,7 +147,7 @@ class dataBase:
     
     def getSuperAdministrator(self, username):
         try:
-            return self.data["superadministrators"][username]
+            return self.data["supermadministrators"][username]
         except KeyError:
             self.message = 'User does not exist'
             self.error = True
@@ -151,7 +157,7 @@ class dataBase:
             self.message = 'User with this email already exists'
             self.error = True
         else:
-            self.data["advisors"][object.username] = object.__dict__
+            self.data["clients"][object.email] = object.__dict__
     
     def getClient(self, email):
         try:
@@ -159,32 +165,36 @@ class dataBase:
         except KeyError:
             self.message = 'Email does not exist'
             self.error = True
-
-
     
+    def getAll(self, userType):
+        return self.data[userType]
+
 class Authentication:
     grantAccess = False
     def authenticate(self, username, password):
         pass
+class Formatter:
+    def capitalize(self,text):
+        return text.capitalize()
+    
+    def makeLowerCase(self,text):
+        return text.lower()
 
 class InputHandler:
-    emailStatus = False
-    passwordStatus = False
-    usernameStatus = False
-    addressStatus = False
-    zipCodeStatus = False
-    phoneNumberStatus = False
-    fullNameStatus = False
-    streetStatus = False
+    formatter = Formatter()
+    error = None
     message = ''
+    cities = ['Amsterdam','Almere','Vlaardingen','Nijmegen',
+            'Zutphen','Apeldoorn','Rotterdam','Schiedam','Zwolle','Delft']
     
     def checkEmail(self,email):
         email = str(email)
         regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
         if(re.search(regex,email)):
-            self.emailStatus = True  
+            self.error = False  
         else:
             self.message = "You entered an invalid email address. Please try again"
+            self.error = True
  
     def checkPassword(self,password):
          #to do: Handel \'
@@ -195,65 +205,326 @@ class InputHandler:
         
         if(re.search(regex_digits,password) and re.search(regex_special,password) and re.search(regex_lower,password) 
         and re.search(regex_upper,password) and (len(password)>=8 and len(password)<=30)):
-            self.passwordStatus = True
+            self.error = False
         else:
-            self.message = '''Invalid password. Please make sure your password contains a combination of at least 
-            one lowercase letter, one uppercase letter, one digit, and one special character and has between 8 to 30 characters'''
+            self.message = 'Invalid password.\n\n Please make sure your password contains a combination of at least\n one lowercase letter, one uppercase letter, one digit, and one special\n character and has between 8 to 30 characters'
+            self.error = True
   
     def checkUsername(self,username):
         #to do: change uppercase to lowercase
         #to do: Handel \
         regex_restricted_characters = '[~!@#$%^&*+=|/?(){}:<>,;`\[\]]'
         if(re.search(regex_restricted_characters,username) or len(username)<5 or len(username)>20 ):
-            self.usernameStatus = False
-            self.message = '''Invalid username. The username may only contain 
-            letters (a-z), numbers (0-9), dashes (-), underscores (_), apostrophes ('), and periods (.) 
-            and has to be between 5 to 20 characters'''
+            self.error = True
+            self.message = "Invalid username.\nThe username may only contain letters (a-z), numbers (0-9),\ndashes (-), underscores (_), apostrophes ('), and periods (.)\nand has to be between 5 to 20 characters"
         else:
-            self.usernameStatus = True
+            self.error = False
             
     def checkZipCode(self,zipcode):
         #to do: change lowercase to uppercase
         regex_zipcode_pattern = '\d{4}[A-Z]{2}'
         if(re.search(regex_zipcode_pattern,zipcode)):
-            self.zipCodeStatus = True
+            self.error = False
         else:
             self.message = "Invalid zipcode. The zipcode must contain 4 digits and 2 letters"
-            self.zipCodeStatus = False
+            self.error = True
     
     def checkPhoneNumber(self,phoneNumber):
         regex_phone_number_pattern = '[+]31[-]6[-]\d{4}[-]\d{4}'
         if(re.search(regex_phone_number_pattern,phoneNumber)):
-            self.phoneNumberStatus = True
+            self.error = False
         else:
             self.message = "Invalid phone number. The phone number must have the following format: (+31-6-DDDD-DDDD)"
-            self.zipCodeStatus = False
+            self.error = True
     
     def checkFullName(self,fullName):
         #to do: Handel \
         regex_restricted_characters = '[~!@#$%^&*+=|/?(){}:<>,;`\[\]\d]'
-        if(re.search(regex_restricted_characters,fullName)):
-            self.fullNameStatus = False
-            self.message = '''Invalid name. Please make sure that your name does not contain special characters or digit.'''
+        if(re.search(regex_restricted_characters,fullName) or len(fullName)< 5 or len(fullName)>25):
+            self.error = True
+            self.message = '''Invalid name. Please make sure that your name does not contain\nspecial characters or digits and is between 5 to 25 characters'''
         else:
-            self.fullNameStatus = True
+            self.error = False
     
     def checkStreet(self,street):
         #to do: Handel \
         regex_restricted_characters = '[~!@#$%^&*+=|/?(){}:<>,;`\[\]]'
         if(re.search(regex_restricted_characters,street)):
-            self.streetStatus = False
+            self.error = False
             self.message = '''Invalid street. Please make sure that your name does not contain special characters.'''
         else:
-            self.streetStatus = True
+            self.error = True
     
     def checkHouseNumber(self,houseNumber):
         #to do: Handel \'
         regex_house_number_pattern = '\d{1,5}[A-Z]{1,2}'
         regex_restricted_characters = '[~!@#$%^&*_+=.|/?(){}:<>,;`\[\]]'
         if(re.search(regex_house_number_pattern,houseNumber) and not re.search(regex_restricted_characters,houseNumber) and len(houseNumber)<= 4):
-            self.houseNumberStatus = True
+            self.error = False
         else:
-            self.message = '''Invalid house number. Please make sure thst it contains at least 1 number'''
-            self.houseNumberStatus= False
+            self.message = '''Invalid house number. Please make sure that it contains at least 1 number'''
+            self.error = True
+    def checkCity(self, city):
+        if city in cities:
+            self.error = False
+        else:
+            self.error = True
+            self.message = "Invalid city.\n We don't provide a service yet in the entered city.\n Cities where we provide services are:\nAmsterdam, Almere, Vlaardingen, Nijmegen', Zutphen, Apeldoorn, Rotterdam, Schiedam, Zwolle,Delft"
+
+class App:
+    quitScreen = False
+    loginScreen = False
+    retrieveSystemAdminscreen = False
+    allSystemAdminsScreen = False
+    allClientsScreen = False
+    allAdvisorsScreen = False
+    superAdminScreen = False
+    systemAdminScreen = False
+    registerAvisorScreen = False
+    registerClientScreen = False
+    userCredentials = {}
+    registeredUserObject = None
+    inputHandler = InputHandler()
+    formatter = Formatter()
+
+    def slowprint(self,s):
+        for c in s + '\n':
+            sys.stdout.write(c)
+            sys.stdout.flush()
+            time.sleep(0.08)
+    
+    def fastPrint(self,s):
+        for c in s + '\n':
+            sys.stdout.write(c)
+            sys.stdout.flush()
+            time.sleep(0.05)
+
+    def displayTitleBar(self, title):
+        # Clears the terminal screen, and displays a title bar.
+        time.sleep(0.5)
+        os.system('clear')
+        print("\t**********************************************")
+        print("\t***  {}  ***".format(str(title)))
+        print("\t**********************************************")
+        print('\n')
+        
+    def dislpayStartScreen(self):
+        while True:
+            self.displayTitleBar('Welcome to the construction company')
+            print("\n[1] Login.")
+            print("[q] Quit.")
+            
+            choice = input("What would you like to do? ")
+            if choice == '1':
+                self.loginScreen = True
+                break
+            elif choice == 'q':
+                self.quitScreen = True
+                break
+            else:
+                self.slowprint("\nI didn't understand that choice. Please try again\n")
+                os.system('clear')
+    
+    def displayLoginScreen(self):
+        while True:     
+            
+            self.displayTitleBar('Please provide your login credentials')
+            print('\n')
+            username = input("Enter your username: ")
+            self.inputHandler.checkUsername(username)
+            if self.inputHandler.error:
+                self.slowprint(self.inputHandler.message)
+                self.slowprint("\n Please try again \n")
+                continue
+
+            password = input("Enter your password: ")
+            self.inputHandler.checkPassword(password)
+            if self.inputHandler.error:
+                self.slowprint(self.inputHandler.message)
+                self.slowprint("\n Please try again \n")
+                continue
+
+            self.userCredentials['username'] = str(username)
+            self.userCredentials['password'] = str(password)
+            break
+    
+    def displaySuperAdminScreen(self,superAdminObject):
+        while True:
+            self.displayTitleBar("Super Administrator - {}".format(str(superAdminObject.username)))
+            print("\n[1] Register a system administrator.")
+            print("[2] Display system administrators.")
+            print("[q] Quit.")
+            
+            choice = input("What would you like to do? ")
+            if str(choice) == '1':
+                self.registerSystemAdminscreen = True
+                break
+            elif str(choice) == '2':
+                self.allSystemAdminsScreen = True
+                break
+            elif str(choice) == 'q':
+                self.quitScreen = True
+                break
+            else:
+                self.slowprint("\nI didn't understand that choice. Please try again\n")
+                os.system('clear')
+        
+        
+    def displayRegisterationScreen(self, userObject, title, userRole):
+        while True:     
+            self.displayTitleBar('Register a new {}'.format(userRole))
+            print('\n')
+            username = input("Enter a username for the new {}: ".format(userRole))
+            self.inputHandler.checkUsername(username)
+            if self.inputHandler.error:
+                self.slowprint(self.inputHandler.message)
+                self.slowprint("\n Please try again \n")
+                continue
+
+            password = input("Enter a password for the new {}: ".format(userRole))
+            self.inputHandler.checkPassword(password)
+            if self.inputHandler.error:
+                self.slowprint(self.inputHandler.message)
+                self.slowprint("\n Please try again \n")
+                continue
+            
+            password2 = input("Confirm the password for the new {}: ".format(userRole))
+            self.inputHandler.checkPassword(password)
+            if self.inputHandler.error:
+                self.slowprint(self.inputHandler.message)
+                self.slowprint("\n Please try again \n")
+                continue
+            
+            if password != password2:
+                self.slowprint("\nPasswords did not match. Please try again \n")
+                continue
+            
+            if isinstance(userObject,superAdministrator):
+                self.registeredUserObject = userObject.createSystemAdministrator(self.formatter.makeLowerCase(username),password)
+                self.slowprint("\nSystem administrator successfully registered\n")
+            
+            if isinstance(userObject,SystemAdministrator):
+                self.registeredUserObject = userObject.createAdvisor(self.formatter.makeLowerCase(username),password)
+                self.slowprint("\nAdvisor successfully registered\n")
+            
+            break
+    
+    def displayClientRegisterationScreen(self,userObject):
+        while True:     
+            self.displayTitleBar('         Register a new client      ')
+            print('\n')
+            fullname = input("Enter the full name of the new client: ")
+            self.inputHandler.checkFullName(fullname)
+            if self.inputHandler.error:
+                self.slowprint(self.inputHandler.message)
+                self.slowprint("\n Please try again \n")
+                continue
+            
+            zipcode = input("Enter the zipcode of the new client: ")
+            self.inputHandler.checkZipCode(zipcode)
+            if self.inputHandler.error:
+                self.slowprint(self.inputHandler.message)
+                self.slowprint("\n Please try again \n")
+                continue
+            
+            street = input("Enter the street of the new client: ")
+            self.inputHandler.checkStreet(street)
+            if self.inputHandler.error:
+                self.slowprint(self.inputHandler.message)
+                self.slowprint("\n Please try again \n")
+                continue
+            
+            housenumber = input("Enter the house number of the new client: ")
+            self.inputHandler.checkHouseNumber(housenumber)
+            if self.inputHandler.error:
+                self.slowprint(self.inputHandler.message)
+                self.slowprint("\n Please try again \n")
+                continue
+            
+            email = input("Enter the email of the new client: ")
+            self.inputHandler.checkEmail(email)
+            if self.inputHandler.error:
+                self.slowprint(self.inputHandler.message)
+                self.slowprint("\n Please try again \n")
+                continue
+            
+            phonenumber = input("Enter the phone number of the new client: ")
+            self.inputHandler.checkPhoneNumber(phonenumber)
+            if self.inputHandler.error:
+                self.slowprint(self.inputHandler.message)
+                self.slowprint("\n Please try again \n")
+                continue
+            
+            city = input("Enter the city of the new client: ")
+            self.inputHandler.checkCity(phonenumber)
+            if self.inputHandler.error:
+                self.slowprint(self.inputHandler.message)
+                self.slowprint("\n Please try again \n")
+                continue   
+            
+            userObject.createClient(fullname, zipcode,street,housenumber,email,phonenumber,self.formatter.capitalize(city))
+            self.slowprint("\nClient successfully registered\n")
+            break
+    
+    def displayAllUsersByType(self, userDict, title, userRole):
+        self.displayTitleBar('         {}         '.format(title))
+        for user in userDict.values():
+            print('Name: ' + str(user['username']) + '\n')
+            print('Role: ' + '{}'.format(userRole))
+            self.fastPrint("--------------------------")
+        time.sleep(5)
+    
+    def displayAllClients(self, userDict):
+        self.displayTitleBar('         All clients overview         ')
+        for user in userDict.values():
+            print('Name: ' + str(user['fullName']))
+            print('Email: ' + str(user['email']))
+            print('Street: ' + str(user['street']))
+            print('House number: ' + str(user['houseNumber']))
+            print('Zipcode: ' + str(user['zipCode']))
+            print('City: ' + str(user['city']))
+            self.fastPrint("--------------------------")
+        time.sleep(5)
+    
+    def displaySystemAdminScreen(self, systemAdminObject):
+        while True:
+            self.displayTitleBar("System administrator - {}".format(str(systemAdminObject.username)))
+            print("\n[1] Register a advisor.")
+            print("[2] Register a client.")
+            print("[3] Display all clients.")
+            print("[4] Display all advisors.")
+            print("[q] Quit.")
+            
+            choice = input("What would you like to do? ")
+            if str(choice) == '1':
+                self.registerAvisorScreen = True
+                break
+            elif str(choice) == '2':
+                self.registerClientScreen = True
+                break
+            elif str(choice) == '3':
+                self.allClientsScreen = True
+                break
+            elif str(choice) == '4':
+                self.allAdvisorsScreen = True
+                break
+            elif str(choice) == 'q':
+                self.quitScreen = True
+                break
+            else:
+                self.slowprint("\nI didn't understand that choice. Please try again\n")
+                os.system('clear')
+
+    def resetScreen(self):
+        self.quitScreen = False
+        self.loginScreen = False
+        self.userCredentials = {}
+
+
+if __name__ == "__main__":
+    pass
+    #implement application logic
+
+        
+    
 
