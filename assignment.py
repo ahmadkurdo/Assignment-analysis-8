@@ -260,7 +260,7 @@ class App:
     quitScreen = False
     loginScreen = False
     retrieveSystemAdminscreen = False
-    registerSystemAdminscreen = False
+    displayAllSystemAdminsScreen = False
     userCredentials = {}
     registeredUserObject = None
     inputHandler = InputHandler()
@@ -337,7 +337,7 @@ class App:
                 self.registerSystemAdminscreen = True
                 break
             elif str(choice) == '2':
-                self.retrieveSystemAdminscreen = True
+                self.displayAllSystemAdminsScreen = True
                 break
             elif str(choice) == 'q':
                 self.quitScreen = True
@@ -381,6 +381,7 @@ class App:
             break
     
     def displayAllSystemAdmins(self, systemAdminDict):
+        self.displayTitleBar('         All system admins         ')
         for systemAdmin in systemAdminDict.values():
             print('Name: ' + str(systemAdmin['username']) + '\n')
             print('Role: ' + 'System administrator')
