@@ -660,8 +660,7 @@ if __name__ == "__main__":
                     db.refresh()
                 app.registerAdvisorScreen = False
                 app.systemAdminScreen = True
-
-            
+ 
             elif app.quitScreen:
                 app.displayInformationScreen('\t\tLogging out    \t', 'We hope to see you soon again ;)')
                 db.terminate()
