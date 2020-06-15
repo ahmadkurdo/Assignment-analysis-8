@@ -14,7 +14,6 @@ class superAdministrator(User):
     def __init__(self,username,password):
         self.username = username
         self.password = password
-        self.role = 1
     
     def createSystemAdministrator(self,username,password):
         systemAdministrator = SystemAdministrator(username,password)
@@ -24,7 +23,6 @@ class SystemAdministrator(User):
     def __init__(self,username,password):
         self.username = username
         self.password = password
-        self.role = 2
     
     def createAdvisor(self,username,password):
         advisor = Advisor(username,password)
@@ -38,7 +36,6 @@ class Advisor(User):
     def __init__(self,username,password):
         self.username = username
         self.password = password
-        self.role = 3
 
 class Client: 
     fullName = None
@@ -57,17 +54,16 @@ class Client:
         self.email = email
         self.phoneNumber = phoneNumber
         self.city = city
-        self.role = 4
 
 class Encryptor:
-    key = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+    key = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
     def encrypt(self, plaintext):
         """Encrypt the string and return the ciphertext"""
         result = ''
 
         for l in plaintext:
             try:
-                i = (self.key.index(l) + 5) % 52
+                i = (self.key.index(l) + 5) % 62
                 result += self.key[i]
             except ValueError:
                 result += l
@@ -78,7 +74,7 @@ class Encryptor:
         result = ''
         for l in ciphertext:
             try:
-                i = (self.key.index(l) - 5) % 52
+                i = (self.key.index(l) - 5) % 62
                 result += self.key[i]
             except ValueError:
                 result += l
@@ -589,17 +585,19 @@ if __name__ == "__main__":
         db = dataBase()
         app.displayLoadScreen()
         db.load()
+        db.terminate()
+
         formatter = Formatter()
         logedInObject= None
         app.dislpayStartScreen()
+        
         if app.quitScreen:
             app.displayInformationScreen('\t\tTerminating       \t', 'We hope to see you soon again ;)')
             time.sleep(1)
             os.system('clear')
             sys.exit()
         
-        while True:
-            
+        while True:    
             if app.loginScreen:
                 app.displayLoginScreen()
                 logedInObject = db.login(app.userCredentials['username'],app.userCredentials['password'])
@@ -608,7 +606,7 @@ if __name__ == "__main__":
                 if db.grantAccess:
                     app.decideScreen(logedInObject)
                     app.loginScreen = False
-                    
+
             elif app.superAdminScreen:
                 app.displaySuperAdminScreen(logedInObject)
                 app.superAdminScreen = False
