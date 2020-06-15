@@ -58,9 +58,7 @@ class Client:
 class Encryptor:
     key = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
     def encrypt(self, plaintext):
-        """Encrypt the string and return the ciphertext"""
         result = ''
-
         for l in plaintext:
             try:
                 i = (self.key.index(l) + 5) % 62
@@ -70,7 +68,6 @@ class Encryptor:
         return result
 
     def decrypt(self,ciphertext):
-        """Decrypt the string and return the plaintext"""
         result = ''
         for l in ciphertext:
             try:
@@ -80,7 +77,6 @@ class Encryptor:
                 result += l
         return result
 
-    
 class dataBase:
     error = False
     data = None
@@ -105,6 +101,10 @@ class dataBase:
             encrypted_dict = ast.literal_eval(encrypted) 
             json.dump(encrypted_dict, f,indent=2)
             f.close()
+    
+    def refresh(self):
+        self.terminate()
+        self.load()
 
     def exists(self,object):
         if (self.getAdvisor(object.username) or self.getSystemAdministrator(object.username) or self.getSuperAdministrator(object.username)):
@@ -119,11 +119,12 @@ class dataBase:
 
     def registerAdvisor(self, object):
         if self.exists(object):
-            self.message = 'Username already exists'
+            self.message = 'Username already exists. You will be redirected to the main screen'
             self.error = True
-            print("Username is already taken")
         else:
             self.data["advisors"][object.username] = object.__dict__
+            self.message = 'The new advisor is successfully registered'
+            self.error = False
     
     def getSystemAdministrator(self, username):
         try:
@@ -134,10 +135,12 @@ class dataBase:
     
     def registerSystemAdministrator(self, object):
         if self.exists(object):
-            self.message = 'Username already exists'
+            self.message = 'Username already exists. You will be redirected to the main screen'
             self.error = True
         else:
             self.data["systemadministrators"][object.username] = object.__dict__
+            self.message = 'The new system administrator is successfully registered'
+            self.error = False
     
     def getSuperAdministrator(self, username):
         try:
@@ -152,6 +155,7 @@ class dataBase:
             self.error = True
         else:
             self.data["clients"][object.email] = object.__dict__
+            self.error = False
     
     def getClient(self, email):
         try:
@@ -173,7 +177,6 @@ class dataBase:
                 self.message = 'Access granted'
                 return logedInsuperAdmin
             
-        
         if self.getSystemAdministrator(username):
             systemAdmin = self.getSystemAdministrator(username)
             if systemAdmin['password'] == password:
@@ -191,17 +194,18 @@ class dataBase:
                 self.error = False
                 self.message = 'Access granted'
                 return logedInAdvisor
-        
+        print('Im here')
         self.grantAccess = False
         self.error = True
-        self.message = 'Authorization failed. Wrong username or password'
+        self.message = 'Authorization failed. Wrong username or password.\nToo many attempts will result in a ban'
 
 class Formatter:
     def capitalize(self,text):
         return text.capitalize()
-    
+
     def makeLowerCase(self,text):
         return text.lower()
+
     def makeUpperCase(self,text):
         return text.upper()
 
@@ -290,6 +294,7 @@ class InputHandler:
         else:
             self.message = '''Invalid house number. Please make sure that it contains at least 1 number'''
             self.error = True
+    
     def checkCity(self, city):
         if city in self.cities:
             self.error = False
@@ -306,7 +311,7 @@ class App:
     allAdvisorsScreen = False
     superAdminScreen = False
     systemAdminScreen = False
-    registerAvisorScreen = False
+    registerAdvisorScreen = False
     registerSystemAdminscreen = False
     registerClientScreen = False
     userCredentials = None
@@ -383,14 +388,14 @@ class App:
     def displayInformationScreen(self,title,message):
         self.displayTitleBar('  {}  '.format(title))
         self.slowprint(message)
+        time.sleep(5)
     
     def displaySuperAdminScreen(self,superAdminObject):
         while True:
-            self.displayTitleBar("Super Administrator - {}".format(str(superAdminObject.username)))
+            self.displayTitleBar("\tSuper Administrator - {}".format(str(superAdminObject.username)))
             print("\n[1] Register a system administrator.")
             print("[2] Display system administrators.")
             print("[q] Quit.")
-            
             choice = input("What would you like to do? ")
             if str(choice) == '1':
                 self.registerSystemAdminscreen = True
@@ -404,8 +409,7 @@ class App:
             else:
                 self.slowprint("\nI didn't understand that choice. Please try again\n")
                 os.system('clear')
-        
-        
+         
     def displayRegisterationScreen(self, userObject, title, userRole):
         while True:     
             self.displayTitleBar('Register a new {}'.format(userRole))
@@ -437,12 +441,14 @@ class App:
             
             if isinstance(userObject,superAdministrator):
                 self.registeredUserObject = userObject.createSystemAdministrator(self.formatter.makeLowerCase(username),password)
-                self.slowprint("\nSystem administrator successfully registered\n")
+                self.slowprint("\nProvided credentials for the system administrator were corrected.\n")
             
             if isinstance(userObject,SystemAdministrator):
                 self.registeredUserObject = userObject.createAdvisor(self.formatter.makeLowerCase(username),password)
-                self.slowprint("\nAdvisor successfully registered\n")
+                self.slowprint("\nProvided credentials for the advisor were corrected.\n")
             
+            self.slowprint("\t\t\tDoing some system checks")
+            self.fastPrint("--------------------------------------------------------------------------------")
             break
     
     def displayClientRegisterationScreen(self,userObject):
@@ -467,7 +473,7 @@ class App:
             self.inputHandler.checkStreet(street)
             if self.inputHandler.error:
                 self.slowprint(self.inputHandler.message)
-                self.slowprint("\n Please try again \n")
+                self.slowprint("\nPlease try again \n")
                 continue
             
             housenumber = input("Enter the house number of the new client: ")
@@ -481,7 +487,7 @@ class App:
             self.inputHandler.checkEmail(email)
             if self.inputHandler.error:
                 self.slowprint(self.inputHandler.message)
-                self.slowprint("\n Please try again \n")
+                self.slowprint("\nPlease try again \n")
                 continue
             
             phonenumber = input("Enter the phone number of the new client: ")
@@ -534,7 +540,7 @@ class App:
             
             choice = input("What would you like to do? ")
             if str(choice) == '1':
-                self.registerAvisorScreen = True
+                self.registerAdvisorScreen = True
                 break
             elif str(choice) == '2':
                 self.registerClientScreen = True
@@ -553,7 +559,6 @@ class App:
                 os.system('clear')
     
     def decideScreen(self,userObject):
-            self.resetScreen()
             if isinstance(userObject,superAdministrator):
                 self.superAdminScreen = True
      
@@ -563,33 +568,18 @@ class App:
             if isinstance(userObject,Advisor):
                 self.advisorScreen = True
    
-    def resetScreen(self):
-        quitScreen = False
-        loginScreen = False
-        retrieveSystemAdminscreen = False
-        allSystemAdminsScreen = False
-        allClientsScreen = False
-        allAdvisorsScreen = False
-        superAdminScreen = False
-        systemAdminScreen = False
-        registerAvisorScreen = False
-        registerClientScreen = False
-        userCredentials = None
-        registeredUserObject = None
-
-
+#Main application
 if __name__ == "__main__":
     while True:
-        
         app = App()
         db = dataBase()
-        app.displayLoadScreen()
         db.load()
         db.terminate()
-
+        print(db.data)
+        app.displayLoadScreen()
         formatter = Formatter()
-        logedInObject= None
         app.dislpayStartScreen()
+        logedInObject = None
         
         if app.quitScreen:
             app.displayInformationScreen('\t\tTerminating       \t', 'We hope to see you soon again ;)')
@@ -602,9 +592,10 @@ if __name__ == "__main__":
                 app.displayLoginScreen()
                 logedInObject = db.login(app.userCredentials['username'],app.userCredentials['password'])
                 if db.error:
-                    app.displayInformationScreen('\t\tWARNING    \t\t', db.message)
+                    app.displayInformationScreen('\t\tWARNING\t\t', db.message)
                 if db.grantAccess:
                     app.decideScreen(logedInObject)
+                    app.displayInformationScreen('\t\tLogin successful\t', db.message)
                     app.loginScreen = False
 
             elif app.superAdminScreen:
@@ -621,6 +612,12 @@ if __name__ == "__main__":
                 app.displayRegisterationScreen(logedInObject,'System administrator registration','system administrator')
                 createdObject = app.registeredUserObject
                 db.registerSystemAdministrator(createdObject)
+                if db.error:
+                    app.displayInformationScreen('Registration error', db.message)
+                else:
+                    print('Im in registered')
+                    app.displayInformationScreen('Registration successful',db.message)
+                    db.refresh()
                 app.registerSystemAdminscreen = False
                 app.superAdminScreen = True
             
@@ -631,8 +628,8 @@ if __name__ == "__main__":
             elif app.allAdvisorsScreen:
                 advisors = db.getAll('advisors')
                 app.displayAllUsersByType(advisors,'All adivors','advisor')
-                app.allAdvisorsScreen = False
                 app.systemAdminScreen = True
+                app.allAdvisorsScreen= False
             
             elif app.allClientsScreen:
                 clients = db.getAll('clients')
@@ -644,16 +641,26 @@ if __name__ == "__main__":
                 app.displayClientRegisterationScreen(logedInObject)
                 createdObject = app.registeredUserObject
                 db.registerClient(createdObject)
+                if db.error:
+                    app.displayInformationScreen('Registration error', db.message)
+                else:
+                    app.displayInformationScreen('Registration successful',db.message)
+                    db.refresh()
                 app.registerClientScreen = False
                 app.systemAdminScreen = True
-
-            
-            elif app.registerAvisorScreen:
+  
+            elif app.registerAdvisorScreen:
                 app.displayRegisterationScreen(logedInObject,'Advisor registration','advisor')
                 createdObject = app.registeredUserObject
                 db.registerAdvisor(createdObject)
+                if db.error:
+                    app.displayInformationScreen('Registration error', db.message)
+                else:
+                    app.displayInformationScreen('Registration successful',db.message)
+                    db.refresh()
                 app.registerAdvisorScreen = False
                 app.systemAdminScreen = True
+
             
             elif app.quitScreen:
                 app.displayInformationScreen('\t\tLogging out    \t', 'We hope to see you soon again ;)')
