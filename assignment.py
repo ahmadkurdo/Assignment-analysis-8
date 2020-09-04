@@ -5,6 +5,24 @@ import os
 import json
 import ast
 import time
+import socket
+
+class host:
+    attempts = 0
+    name = None
+
+    def getHost(self):
+        return self.name
+    
+    def incrementAttempts(self):
+        attempts += 1
+    
+    def hasReachedMaximumAttempts(self):
+        if self.attempts >= 5:
+            return True
+    
+    def setAttempts(self,attempts):
+        self.attempts = attempts    
 
 class User:
     userName = None
@@ -369,17 +387,15 @@ class App:
             print('\n')
             username = input("Enter your username: ")
             self.inputHandler.checkUsername(username)
-            if self.inputHandler.error:
-                self.slowprint(self.inputHandler.message)
-                self.slowprint("\n Please try again \n")
-                continue
 
             password = input("Enter your password: ")
             self.inputHandler.checkPassword(password)
+        
             if self.inputHandler.error:
-                self.slowprint(self.inputHandler.message)
+                self.slowprint('Incorrect username or password.')
                 self.slowprint("\n Please try again \n")
                 continue
+            
             self.userCredentials = {}
             self.userCredentials['username'] = self.formatter.makeLowerCase(username)
             self.userCredentials['password'] = str(password)
@@ -571,11 +587,11 @@ class App:
 #Main application
 if __name__ == "__main__":
     while True:
+
         app = App()
         db = dataBase()
         db.load()
         db.terminate()
-        print(db.data)
         app.displayLoadScreen()
         formatter = Formatter()
         app.dislpayStartScreen()
@@ -593,6 +609,7 @@ if __name__ == "__main__":
                 logedInObject = db.login(app.userCredentials['username'],app.userCredentials['password'])
                 if db.error:
                     app.displayInformationScreen('\t\tWARNING\t\t', db.message)
+                    
                 if db.grantAccess:
                     app.decideScreen(logedInObject)
                     app.displayInformationScreen('\t\tLogin successful\t', db.message)
